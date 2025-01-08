@@ -1,51 +1,10 @@
-
-import pandas as pd
-import folium # type: ignore
 import streamlit as st
+import folium # type: ignore
 from streamlit_folium import folium_static # type: ignore
 import json
-import streamlit as st
 import numpy as np
 import plotly.express as px
 
-
-
-st.set_page_config(
-    page_title="Dashboard GRP 8 : Voiture electrique", page_icon="🚘", initial_sidebar_state="expanded", layout="wide"
-)
-
-
-# Chargement des données
-@st.cache_data
-def load_data():
-
-
-    # Chargement des fichiers CSV
-    nb_voiture_commune_dep = pd.read_csv("data/nb_voiture_commune_dep.csv")
-    nb_voiture_commune_dep2 = pd.read_csv("data/nb_voiture_annee_cdr.csv")
-    # Ajout d'une colonne combinée pour le département
-    nb_voiture_commune_dep['dept_code_name'] = nb_voiture_commune_dep['code_dep'].astype(str) + ' - ' + nb_voiture_commune_dep['nom_departement']
-
-    nb_voiture_commune_dep2["codgeo"] = nb_voiture_commune_dep2["codgeo"].astype(str)
-    nb_voiture_commune_dep2["code_dep"] = nb_voiture_commune_dep2["code_dep"].astype(str)
-    nb_voiture_commune_dep2["code_region"] = nb_voiture_commune_dep2["code_region"].astype(str)    
-    nb_voiture_commune_dep2['dept_code_name'] = nb_voiture_commune_dep2['code_dep'].astype(str) + ' - ' + nb_voiture_commune_dep2['nom_departement']
-    nb_voiture_commune_dep2['reg_code_name'] = nb_voiture_commune_dep2['code_region'].astype(str) + ' - ' + nb_voiture_commune_dep2['nom_region']
-    nb_voiture_commune_dep2['com_code_name'] = nb_voiture_commune_dep2['codgeo'].astype(str) + ' - ' + nb_voiture_commune_dep2['libgeo']
-
-
-    with open("data/communes.geojson", 'r') as f:
-        geojson_data_com = json.load(f)
-
-    with open("data/france_departments.geojson", 'r') as f:
-        geojson_data_dep = json.load(f)
-
-    with open("data/regions.geojson", 'r') as f:
-        geojson_data_reg = json.load(f)
-        
-    return nb_voiture_commune_dep,nb_voiture_commune_dep2, geojson_data_com, geojson_data_dep, geojson_data_reg
-
-# Création de la carte
 def create_map(nb_voiture_commune_dep, geojson_data,col_granu):
     # Initialisation de la carte centrée sur la France
     map = folium.Map(location=[46.603354, 1.8883344], zoom_start=6, tiles='CartoDB positron')
@@ -84,17 +43,10 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu):
     folium.LayerControl().add_to(map)
     
     return map
-    # Définir les fonctions pour chaque page
 
-
-
-def page_presentation():
-    st.title("🚘 Carte des Véhicules Électriques par Département")
-    st.markdown("Cette application affiche les données sur les véhicules électriques par département en France.")
-    # Affichage des données en table
-    st.sidebar.header("Données Brutes")
-    # Chargement des données
-    nb_voiture_commune_dep,nb_voiture_commune_dep2, geojson_data_com, geojson_data_dep, geojson_data_reg = load_data()
+def show(nb_voiture_commune_dep,nb_voiture_commune_dep2, geojson_data_com, geojson_data_dep, geojson_data_reg):
+    st.title("Page 1 : Présentation des données")
+    st.write("Bienvenue sur la page de présentation des données.")
     nb_voiture_commune_dep = nb_voiture_commune_dep2
 
     selected_years = st.sidebar.multiselect(
@@ -195,33 +147,4 @@ def page_presentation():
                 title="Histogramme du nombre de véhicules rechargeables par année",
                 color='nom_region'
             )
-
-def page_stat_descriptive():
-    st.title("Page 2 : Statistiques descriptives")
-    st.write("Bienvenue sur la page des statistiques descriptives.")
     # Ajoute ici le contenu spécifique à cette page
-
-def page_prediction():
-    st.title("Page 3 : Page de prédiction")
-    st.write("Bienvenue sur la page de prédiction.")
-    # Ajoute ici le contenu spécifique à cette page
-
-
-
-# Affichage principal
-def main():
-    st.sidebar.title("Navigation")  # Crée une barre latérale pour la navigation
-    page = st.sidebar.radio("Aller à", ["Présentation", "Statistiques descriptives", "Prédiction"])
-
-    # Appeler la fonction correspondant à la page choisie
-    if page == "Présentation":
-        page_presentation()
-    elif page == "Statistiques descriptives":
-        page_stat_descriptive()
-    elif page == "Prédiction":
-        page_prediction()
-        
-# Lancer l'application
-if __name__ == "__main__":
-    main()
-
