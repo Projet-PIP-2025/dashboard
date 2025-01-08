@@ -4,3 +4,4 @@ streamlit
 streamlit_folium
 numpy
 plotly
+streamlit_option_menu
