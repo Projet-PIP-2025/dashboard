@@ -3,6 +3,5 @@ import folium
 import streamlit
 from streamlit_folium
 import json
-import streamlit
 import numpy
 import plotly
