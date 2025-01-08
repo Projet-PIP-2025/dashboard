@@ -1,7 +1,7 @@
-import pandas
-import folium
-import streamlit
-from streamlit_folium
-import json
-import numpy
-import plotly
+pandas
+folium
+streamlit
+streamlit_folium
+json
+numpy
+plotly
