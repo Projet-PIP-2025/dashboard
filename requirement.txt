@@ -1,0 +1,8 @@
+pandas
+folium
+streamlit
+from streamlit_folium
+json
+streamlit
+numpy
+plotly
