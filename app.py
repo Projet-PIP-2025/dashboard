@@ -18,25 +18,15 @@ st.set_page_config(page_title="Dashboard : Voiture électrique",
 @st.cache_data
 def load_data():
     # Chargement des fichiers CSV
-    nb_voiture_commune_dep = pd.read_csv("data/nb_voiture_commune_dep.csv")
-    nb_voiture_commune_dep2 = pd.read_csv("data/nb_voiture_annee_cdr.csv")
 
-    # Ajout d'une colonne combinée pour le département
-    nb_voiture_commune_dep['dept_code_name'] = nb_voiture_commune_dep['code_dep'].astype(
-        str) + ' - ' + nb_voiture_commune_dep['nom_departement']
+    nb_voiture_commune = pd.read_csv("C:\\Users\\MRH4\OneDrive - MODEL RH\\Bureau\\Dossier_git\\data\\nb_voiture_commune.csv")
+    nb_voiture_dep = pd.read_csv("C:\\Users\\MRH4\OneDrive - MODEL RH\\Bureau\\Dossier_git\\data\\nb_voiture_dep.csv")
+    nb_voiture_reg = pd.read_csv("C:\\Users\\MRH4\OneDrive - MODEL RH\\Bureau\\Dossier_git\\data\\nb_voiture_reg.csv")
 
-    nb_voiture_commune_dep2["codgeo"] = nb_voiture_commune_dep2["codgeo"].astype(
-        str)
-    nb_voiture_commune_dep2["code_dep"] = nb_voiture_commune_dep2["code_dep"].astype(
-        str)
-    nb_voiture_commune_dep2["code_region"] = nb_voiture_commune_dep2["code_region"].astype(
-        str)
-    nb_voiture_commune_dep2['dept_code_name'] = nb_voiture_commune_dep2['code_dep'].astype(
-        str) + ' - ' + nb_voiture_commune_dep2['nom_departement']
-    nb_voiture_commune_dep2['reg_code_name'] = nb_voiture_commune_dep2['code_region'].astype(
-        str) + ' - ' + nb_voiture_commune_dep2['nom_region']
-    nb_voiture_commune_dep2['com_code_name'] = nb_voiture_commune_dep2['codgeo'].astype(
-        str) + ' - ' + nb_voiture_commune_dep2['libgeo']
+
+    bornes = pd.read_csv("data/Bornes_nettoye2.csv",sep=";",encoding="utf-8")
+
+
 
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
@@ -47,10 +37,10 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return nb_voiture_commune_dep, nb_voiture_commune_dep2, geojson_data_com, geojson_data_dep, geojson_data_reg
+    return bornes, nb_voiture_commune,nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg
 
 
-nb_voiture_commune_dep, nb_voiture_commune_dep2, geojson_data_com, geojson_data_dep, geojson_data_reg = load_data()
+bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg = load_data()
 
 
 def main():
@@ -92,8 +82,8 @@ def main():
         )
 
     elif selected_page == "Carte":
-        page_presentations.show(nb_voiture_commune_dep, nb_voiture_commune_dep2,
-                                geojson_data_com, geojson_data_dep, geojson_data_reg)
+        page_presentations.show(bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":
         page_stat.show()
