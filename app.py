@@ -19,9 +19,9 @@ st.set_page_config(page_title="Dashboard : Voiture électrique",
 def load_data():
     # Chargement des fichiers CSV
 
-    nb_voiture_commune = pd.read_csv("C:\\Users\\MRH4\OneDrive - MODEL RH\\Bureau\\Dossier_git\\data\\nb_voiture_commune.csv")
-    nb_voiture_dep = pd.read_csv("C:\\Users\\MRH4\OneDrive - MODEL RH\\Bureau\\Dossier_git\\data\\nb_voiture_dep.csv")
-    nb_voiture_reg = pd.read_csv("C:\\Users\\MRH4\OneDrive - MODEL RH\\Bureau\\Dossier_git\\data\\nb_voiture_reg.csv")
+    nb_voiture_commune = pd.read_csv("data/nb_voiture_commune.csv")
+    nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv")
+    nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv")
 
 
     bornes = pd.read_csv("data/Bornes_nettoye2.csv",sep=";",encoding="utf-8")
