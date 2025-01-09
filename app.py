@@ -7,7 +7,7 @@ import numpy as np
 import plotly.express as px
 from streamlit_option_menu import option_menu
 
-from my_pages import page_presentations, page_stat, page_predictions
+from my_pages import page_presentations, page_stat, page_predictions, page_recommandations
 
 st.set_page_config(page_title="Dashboard : Voiture électrique",
                    page_icon="🚘", layout="wide")
@@ -23,10 +23,7 @@ def load_data():
     nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv")
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv")
 
-
-    bornes = pd.read_csv("data/Bornes_nettoye2.csv",sep=";",encoding="utf-8")
-
-
+    bornes = pd.read_csv("data/Bornes_nettoye2.csv", sep=";", encoding="utf-8")
 
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
@@ -37,7 +34,7 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return bornes, nb_voiture_commune,nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg
+    return bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg
 
 
 bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg = load_data()
@@ -46,8 +43,10 @@ bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, ge
 def main():
     selected_page = option_menu(
         menu_title=None,  # No title
-        options=["Accueil", "Carte", "Statistiques", "Prédictions"],  # Options
-        icons=["house", "map", "bar-chart-line"],  # Icons
+        options=["Accueil", "Carte", "Statistiques",
+                 "Prédictions", "Recommandations"],  # Options
+        icons=["house", "map", "bar-chart-line",
+               "graph-up", "lightbulb"],  # Icons
         menu_icon="cast",  # Menu Icon
         default_index=0,  # Default
         orientation="horizontal",
@@ -55,8 +54,8 @@ def main():
             "container": {"padding": "0!important", "background-color": "#fafafa"},
             "icon": {"color": "orange", "font-size": "25px"},
             "nav-link": {
-                "font-size": "16px",
-                "text-align": "left",
+                "font-size": "14px",
+                "text-align": "center",
                 "margin": "0px",
                 "--hover-color": "#eee",
             },
@@ -78,18 +77,37 @@ def main():
             Utilisez le menu en haut de la page pour naviguer entre les différentes sections :
             * **Carte:** Visualisez les données sur une carte interactive.
             * **Statistiques:** Explorez les données à travers des graphiques.
+            * **Prédictions:** Faire des prédictions sur les données.
+            * **Recommandations:** Faire des recommandations à partir des prédictions éffectuées.
+            """
+        )
+        st.subheader("Réalisé par :")
+        st.markdown(
+            """
+            * **Thomas**
+            * **Koudous**
+            * **Raïssa**
+            * **Xavier**
+            * **Antoine**
+            * **Noé**
+            * **Paul**
+            * **Charly**
             """
         )
 
     elif selected_page == "Carte":
         page_presentations.show(bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
-                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
+                                geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":
-        page_stat.show()
+        page_stat.show(nb_voiture_commune_dep2, nb_voiture_commune_dep2,
+                       nb_voiture_commune_dep2, nb_voiture_commune_dep2)
 
     elif selected_page == "Prédictions":
         page_predictions.show()
+
+    elif selected_page == "Recommandations":
+        page_recommandations.show()
 
 
 if __name__ == "__main__":
