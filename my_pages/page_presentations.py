@@ -5,13 +5,18 @@ import json
 import numpy as np
 import plotly.express as px
 
-def create_map(nb_voiture_commune_dep, geojson_data,col_granu):
+def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
     # Initialisation de la carte centrée sur la France
     map = folium.Map(location=[46.603354, 1.8883344], zoom_start=6, tiles='CartoDB positron')
 
-    # Conversion des données en dictionnaire pour relier avec le GeoJSON
-    vehicle_dict = nb_voiture_commune_dep.set_index(col_granu)['nb_vp_rechargeables_el'].to_dict()
+    if info_carte == "nombre de véhicule":
+        # Conversion des données en dictionnaire pour relier avec le GeoJSON
+        col = 'nb_vp_rechargeables_el'
+    elif "ratio de véhicule électrique par rapport au total":
+        # Conversion des données en dictionnaire pour relier avec le GeoJSON
+        col = 'ratio_elec_total'
 
+    vehicle_dict = nb_voiture_commune_dep.set_index(col_granu)[col].to_dict()
     # Ajout des données au GeoJSON
     for feature in geojson_data['features']:
         feature_code = feature['properties']['code']
@@ -22,7 +27,7 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu):
         geo_data=geojson_data,
         name="Véhicules électriques par département",
         data=nb_voiture_commune_dep,
-        columns=[col_granu, 'nb_vp_rechargeables_el'],
+        columns=[col_granu, col],
         key_on='feature.properties.code',
         fill_color='YlGnBu',
         fill_opacity=0.7,
@@ -44,16 +49,20 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu):
     
     return map
 
-def show(nb_voiture_commune_dep,nb_voiture_commune_dep2, geojson_data_com, geojson_data_dep, geojson_data_reg):
+def show(bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+                                geojson_data_com, geojson_data_dep, geojson_data_reg):
+
+
+
     st.title("Page 1 : Présentation des données")
     st.write("Bienvenue sur la page de présentation des données.")
-    nb_voiture_commune_dep = nb_voiture_commune_dep2
 
-    selected_years = st.sidebar.multiselect(
-        "Sélectionnez les années à inclure :",
-        options=nb_voiture_commune_dep2["annee"].unique(),
-        default=nb_voiture_commune_dep2["annee"].unique()
-    )
+    selected_year = st.sidebar.slider(
+    "Sélectionnez une année :",
+    min_value=int(nb_voiture_reg["annee"].min()),
+    max_value=int(nb_voiture_reg["annee"].max()),
+    value=2024,  # Valeur par défaut
+    step=1)
 
     # Sélection du niveau de granularité
     granularity = st.sidebar.selectbox(
@@ -61,90 +70,38 @@ def show(nb_voiture_commune_dep,nb_voiture_commune_dep2, geojson_data_com, geojs
         options=["département", "commune", "région"]
     )
 
-
+    info_carte = st.sidebar.selectbox(
+        "Sélectionnez quelle information afficher :",
+        options=["nombre de véhicule", "ratio de véhicule électrique par rapport au total"]
+    )
     if granularity == "commune":
-        nb_voiture_commune_dep = nb_voiture_commune_dep2[["codgeo","libgeo","nb_vp_rechargeables_el","nb_vp","annee"]]
-        nb_voiture_commune_dep = nb_voiture_commune_dep[nb_voiture_commune_dep["annee"].isin(selected_years)]
-        nb_voiture_commune_dep.drop(columns=["annee"], inplace=True)
-        nb_voiture_commune_dep = nb_voiture_commune_dep.groupby(['libgeo', 'codgeo']).agg({
-        'nb_vp_rechargeables_el': 'sum',
-        'nb_vp': 'sum'
-        }).reset_index()
+
         col_granu = "codgeo"
+        geojson_data = geojson_data_com
+        dataset = nb_voiture_commune
+        dataset = dataset[dataset["annee"] == selected_year]
+        dataset.drop(columns=["annee"], inplace=True)
 
-
-
-        # Affichage de la carte
-        map = create_map(nb_voiture_commune_dep, geojson_data_com, col_granu)
-        folium_static(map, width=800, height=600)
 
     elif granularity == "région":
-        nb_voiture_commune_dep = nb_voiture_commune_dep2[["code_region","nom_region",'reg_code_name',"nb_vp_rechargeables_el","nb_vp","annee"]]
-        nb_voiture_commune_dep = nb_voiture_commune_dep[nb_voiture_commune_dep["annee"].isin(selected_years)]
-        nb_voiture_commune_dep.drop(columns=["annee"], inplace=True)
-        nb_voiture_commune_dep = nb_voiture_commune_dep.groupby(['nom_region', 'code_region']).agg({
-        'nb_vp_rechargeables_el': 'sum',
-        'nb_vp': 'sum'
-        }).reset_index()
-        col_granu = "code_region"
 
-        # Affichage de la carte
-        map = create_map(nb_voiture_commune_dep, geojson_data_reg, col_granu)
-        folium_static(map, width=800, height=600)
+        col_granu = "code_region"
+        geojson_data = geojson_data_reg
+        dataset = nb_voiture_reg
+        dataset = dataset[dataset["annee"] == selected_year]
+        dataset.drop(columns=["annee"], inplace=True)
 
     else:
-        nb_voiture_commune_dep = nb_voiture_commune_dep[["code_dep","nom_departement",'dept_code_name',"nb_vp_rechargeables_el","nb_vp","annee"]]
-        nb_voiture_commune_dep = nb_voiture_commune_dep[nb_voiture_commune_dep["annee"].isin(selected_years)]
-        nb_voiture_commune_dep.drop(columns=["annee"], inplace=True)
-        nb_voiture_commune_dep = nb_voiture_commune_dep.groupby(['nom_departement', 'code_dep']).agg({'nb_vp_rechargeables_el': 'sum','nb_vp': 'sum'
-        }).reset_index()
         col_granu = "code_dep"
+        geojson_data = geojson_data_dep
+        dataset = nb_voiture_dep
+        dataset = dataset[dataset["annee"] == selected_year]
+        dataset.drop(columns=["annee"], inplace=True)
 
-        # Affichage de la carte
-        map = create_map(nb_voiture_commune_dep, geojson_data_dep, col_granu)
-        folium_static(map, width=800, height=600)
-    st.sidebar.markdown("---")   
-    # Sélection du niveau de granularité
-    granularity_histo = st.sidebar.selectbox(
-        "Sélectionnez le niveau de granularité :",
-        options=["region","total"]
-    )
-    # affiche une barre horizontale dans st.sidebar.
     
-    # Affichage une barre horizontale
-    st.markdown("---")
-    if granularity_histo:
-        if granularity_histo == "total":
-            nb_voiture_commune_dep = nb_voiture_commune_dep2[['nb_vp_rechargeables_el', 'annee']]
-            grouped_data = nb_voiture_commune_dep.groupby(['annee']).agg({'nb_vp_rechargeables_el': 'sum'}).reset_index()
-
-            # Création de l'histogramme avec Plotly
-            fig = px.bar(
-                grouped_data,
-                x='annee',
-                y='nb_vp_rechargeables_el',
-                labels={'annee': 'Année', 'nb_vp_rechargeables_el': 'Nombre de véhicules rechargeables'},
-                title="Histogramme du nombre de véhicules rechargeables par année",
-                color='annee'
-            )
-            
-            # Affichage de l'histogramme
-            st.plotly_chart(fig)
-        elif granularity_histo == "region":
-            granularity_histo = st.sidebar.multiselect(
-        "Sélectionnez une région :",
-        options=nb_voiture_commune_dep2["nom_region"].unique())
-            nb_voiture_commune_dep = nb_voiture_commune_dep2[['nb_vp_rechargeables_el',"nom_region",'annee']]
-            nb_voiture_commune_dep = nb_voiture_commune_dep[nb_voiture_commune_dep["nom_region"].isin(granularity_histo)]
-            grouped_data = nb_voiture_commune_dep.groupby(['annee',"nom_region"]).agg({'nb_vp_rechargeables_el': 'sum'}).reset_index()
-
-            # Création de l'histogramme avec Plotly
-            fig = px.bar(
-                grouped_data,
-                x='annee',
-                y='nb_vp_rechargeables_el',
-                labels={'annee': 'Année', 'nb_vp_rechargeables_el': 'Nombre de véhicules rechargeables'},
-                title="Histogramme du nombre de véhicules rechargeables par année",
-                color='nom_region'
-            )
-    # Ajoute ici le contenu spécifique à cette page
+    """nb_voiture_commune_dep["ratio_elec_total"] = nb_voiture_commune_dep["nb_vp_rechargeables_el"]	/ nb_voiture_commune_dep["nb_vp"]
+    # Fait ca en pourcentage nb_voiture_commune_dep["ratio_elec_total"] avec 2 chiffres après la virgule
+    nb_voiture_commune_dep["ratio_elec_total"] = nb_voiture_commune_dep["ratio_elec_total"] * 100
+    nb_voiture_commune_dep["ratio_elec_total"] = nb_voiture_commune_dep["ratio_elec_total"].round(2)"""
+    map = create_map(dataset, geojson_data, col_granu, info_carte)
+    folium_static(map, width=800, height=600)
