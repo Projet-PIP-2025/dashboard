@@ -5,15 +5,14 @@ import pandas as pd
 import plotly.express as px
 
 
-def show(voiture_commune_dep, voiture_region, borne_region, borne_commune_dep):
+def show(voiture_commune, voiture_region, bornes):
     """
     Affiche les statistiques descriptives avec filtres intégrés.
 
     Args:
-        voiture_commune_dep (pd.DataFrame): Données des véhicules électriques par commune et département.
+        voiture_commune (pd.DataFrame): Données des véhicules électriques par commune et département.
         voiture_region (pd.DataFrame): Données des véhicules électriques par région.
-        borne_region (pd.DataFrame): Données des bornes de recharge par région.
-        borne_commune_dep (pd.DataFrame): Données des bornes de recharge par commune et département.
+        bornes (pd.DataFrame): Données des bornes de recharge par commune et département.
     """
     st.title("Statistiques descriptives")
     st.write("Bienvenue sur la page des statistiques descriptives.")
@@ -23,7 +22,7 @@ def show(voiture_commune_dep, voiture_region, borne_region, borne_commune_dep):
 
     # Filtre par année
     years = ["Toutes les années"] + \
-        sorted(voiture_commune_dep['annee'].unique())
+        sorted(voiture_commune['annee'].unique())
     selected_year = st.sidebar.selectbox("Choisissez une année", options=years)
 
     # Niveau de granularité
@@ -35,24 +34,24 @@ def show(voiture_commune_dep, voiture_region, borne_region, borne_commune_dep):
     # Options dynamiques en fonction du niveau choisi
     if granularite == "Région":
         options = ["Toutes les régions"] + \
-            sorted(voiture_commune_dep['nom_region'].unique())
+            sorted(voiture_commune['nom_region'].unique())
         selected_option = st.sidebar.selectbox(
             "Sélectionnez une région", options=options)
     elif granularite == "Département":
         options = ["Tous les départements"] + \
-            sorted(voiture_commune_dep['nom_departement'].unique())
+            sorted(voiture_commune['nom_departement'].unique())
         selected_option = st.sidebar.selectbox(
             "Sélectionnez un département", options=options)
     elif granularite == "Commune":
         options = ["Toutes les communes"] + \
-            sorted(voiture_commune_dep['libgeo'].unique())
+            sorted(voiture_commune['libgeo'].unique())
         selected_option = st.sidebar.selectbox(
             "Sélectionnez une commune", options=options)
     else:
         selected_option = "Aucun"
 
     # ---- Filtrage des données ----
-    filtered_data = voiture_commune_dep.copy()
+    filtered_data = voiture_commune.copy()
 
     # Appliquer le filtre par année
     if selected_year != "Toutes les années":
@@ -107,23 +106,28 @@ def show(voiture_commune_dep, voiture_region, borne_region, borne_commune_dep):
     # ---- Analyse : Nombre de bornes de recharge ----
     with tab2:
         st.subheader(f"Analyse du nombre de bornes de recharge{title_suffix}")
-        agg_bornes = borne_commune_dep.copy()
+        agg_bornes = bornes.copy()
 
         # Filtrer les bornes de recharge par année
         if selected_year != "Toutes les années":
-            agg_bornes = agg_bornes[agg_bornes['annee'] == selected_year]
+            agg_bornes = agg_bornes[agg_bornes['Annee'] == selected_year]
 
-        agg_bornes = agg_bornes.groupby(
-            'annee')['nb_bornes_recharge'].sum().reset_index()
+        agg_bornes = agg_bornes['Annee'].value_counts()
+
+        agg_bornes = agg_bornes.reset_index()
+        agg_bornes.columns = ['Annee', 'Nombre_de_bornes']
+
+        # Tri par année
+        agg_bornes = agg_bornes.sort_values(by='Annee')
 
         # Graphique interactif avec Plotly
         fig2 = px.line(
             agg_bornes,
-            x='annee',
-            y='nb_bornes_recharge',
+            x='Annee',
+            y='Nombre_de_bornes',
             title=f"Évolution du nombre de bornes de recharge{title_suffix}",
-            labels={'annee': 'Année',
-                    'nb_bornes_recharge': 'Nombre de bornes de recharge'},
+            labels={'Annee': 'Année',
+                    'Nombre_de_bornes': 'Nombre de bornes de recharge'},
             markers=True
         )
         st.plotly_chart(fig2)
@@ -132,12 +136,15 @@ def show(voiture_commune_dep, voiture_region, borne_region, borne_commune_dep):
     with tab3:
         st.subheader(f"Analyses croisées{title_suffix}")
         st.write(
-            "Relation entre le nombre de véhicules électriques et les bornes de recharge")
+            "Relation entre le nombre de véhicules électriques et les bornes de recharge"
+        )
+        bornes["annee"] = bornes["Annee"]
+        bornes["libgeo"] = bornes["commune"]
 
         # Fusion des données pour analyse croisée
         agg_croisee = pd.merge(
             filtered_data,
-            borne_commune_dep,
+            bornes,
             on=['annee', 'nom_region', 'nom_departement', 'libgeo'],
             how='inner'
         )
@@ -146,15 +153,23 @@ def show(voiture_commune_dep, voiture_region, borne_region, borne_commune_dep):
         if selected_year != "Toutes les années":
             agg_croisee = agg_croisee[agg_croisee['annee'] == selected_year]
 
-        # Graphique interactif avec Plotly
-        fig3 = px.scatter(
-            agg_croisee,
-            x='nb_vp_rechargeables_el',
-            y='nb_bornes_recharge',
-            title=f"Véhicules électriques vs Bornes de recharge{title_suffix}",
-            labels={
-                'nb_vp_rechargeables_el': 'Nombre de véhicules électriques',
-                'nb_bornes_recharge': 'Nombre de bornes de recharge'
-            }
-        )
-        st.plotly_chart(fig3)
+        # Vérification si le DataFrame fusionné n'est pas vide
+        if agg_croisee.empty:
+            st.warning(
+                "Aucune donnée disponible pour les critères sélectionnés.")
+        else:
+            # Graphique interactif avec Plotly
+            fig3 = px.scatter(
+                agg_croisee,
+                x='nb_vp_rechargeables_el',
+                y='nb_bornes_recharge',
+                title=f"Véhicules électriques vs Bornes de recharge{
+                    title_suffix}",
+                labels={
+                    'nb_vp_rechargeables_el': 'Nombre de véhicules électriques',
+                    'nb_bornes_recharge': 'Nombre de bornes de recharge'
+                },
+                hover_data=['annee', 'nom_region', 'nom_departement',
+                            'libgeo']  # Ajout des métadonnées dans le survol
+            )
+            st.plotly_chart(fig3)
