@@ -22,15 +22,11 @@ def load_data():
     nb_voiture_commune = pd.read_csv("data/nb_voiture_commune.csv")
     nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv")
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv")
-
-
-    bornes = pd.read_csv("data/Bornes_nettoye2.csv",sep=";",encoding="utf-8")
-
-
-
+    bornes = pd.read_csv("data/bornes_completes.csv")
+    # bornes_sans_date = 
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
-
+    
     with open("data/france_departments.geojson", 'r') as f:
         geojson_data_dep = json.load(f)
 
