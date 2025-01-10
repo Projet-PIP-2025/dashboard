@@ -6,8 +6,8 @@ import json
 import numpy as np
 import plotly.express as px
 from streamlit_option_menu import option_menu
-
 from my_pages import page_presentations, page_stat, page_predictions, page_recommandations
+
 
 st.set_page_config(page_title="Dashboard : Voiture électrique",
                    page_icon="🚘", layout="wide")
@@ -23,9 +23,13 @@ def load_data():
     nb_voiture_commune = pd.read_csv("data/nb_voiture_commune.csv")
     nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv")
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv")
+    bornes_vehicules_dep = pd.read_csv("data/croisement_donnee_borne_voiture_departement.csv", encoding="utf-8")
+    bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
+    
     bornes = pd.read_csv("data/bornes_completes.csv")
     bornes2 = pd.read_csv("data/Bornes_nettoye2.csv", delimiter = ";")
     # bornes_sans_date = 
+
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
     
@@ -35,10 +39,10 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_vehicules_dep, bornes_vehicules_reg
 
 
-bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_vehicules_dep, bornes_vehicules_reg = load_data()
 
 
 def main():
@@ -68,7 +72,7 @@ def main():
         st.title("Bienvenue sur le Dashboard des Véhicules Électriques")
         st.markdown(
             """
-            Ce dashboard présente des données sur les véhicules électriques en France.  
+            Ce dashboard présente des données sur les véhicules électriques en France.
             Vous pouvez explorer les données par région, département et commune.
             """
         )
@@ -101,7 +105,7 @@ def main():
                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":
-        page_stat.show(nb_voitures, nb_voiture_commune, bornes)
+        page_stat.show(nb_voitures, nb_voiture_commune, bornes, bornes_vehicules_dep, bornes_vehicules_reg)
 
     elif selected_page == "Prédictions":
         page_predictions.show(bornes2)
