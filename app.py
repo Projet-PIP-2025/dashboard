@@ -89,7 +89,7 @@ def main():
         page_stat.show()
 
     elif selected_page == "Prédictions":
-        page_predictions.show()
+        page_predictions.show(bornes)
 
 
 if __name__ == "__main__":
