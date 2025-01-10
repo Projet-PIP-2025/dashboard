@@ -103,7 +103,7 @@ def main():
         page_stat.show(nb_voitures, nb_voiture_commune, bornes)
 
     elif selected_page == "Prédictions":
-        page_predictions.show()
+        page_predictions.show(bornes)
 
     elif selected_page == "Recommandations":
         page_recommandations.show()
