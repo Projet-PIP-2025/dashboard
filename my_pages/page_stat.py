@@ -136,40 +136,90 @@ def show(voiture_commune, voiture_region, bornes):
     with tab3:
         st.subheader(f"Analyses croisées{title_suffix}")
         st.write(
-            "Relation entre le nombre de véhicules électriques et les bornes de recharge"
+            "Évolution comparée du nombre de véhicules électriques et des bornes de recharge par année"
         )
+
+        # Préparation des données agrégées pour les bornes
         bornes["annee"] = bornes["Annee"]
         bornes["libgeo"] = bornes["commune"]
 
-        # Fusion des données pour analyse croisée
-        agg_croisee = pd.merge(
-            filtered_data,
-            bornes,
-            on=['annee', 'nom_region', 'nom_departement', 'libgeo'],
-            how='inner'
-        )
+        agg_bornes = bornes.copy()
+        agg_bornes = agg_bornes['annee'].value_counts().reset_index()
+        agg_bornes.columns = ['annee', 'nb_bornes']
+        agg_bornes = agg_bornes.sort_values(by='annee')
 
-        # Filtrer les données croisées par année
-        if selected_year != "Toutes les années":
-            agg_croisee = agg_croisee[agg_croisee['annee'] == selected_year]
+        # Agrégation des véhicules électriques par année
+        agg_vehicles = filtered_data.groupby(
+            'annee')['nb_vp_rechargeables_el'].sum().reset_index()
+        agg_vehicles.columns = ['annee', 'nb_vehicles']
 
-        # Vérification si le DataFrame fusionné n'est pas vide
-        if agg_croisee.empty:
-            st.warning(
-                "Aucune donnée disponible pour les critères sélectionnés.")
+        # Fusion des deux séries temporelles
+        evolution_data = pd.merge(
+            agg_bornes, agg_vehicles, on='annee', how='inner')
+
+        # Calcul du ratio véhicules par borne
+        evolution_data['ratio_vehicles_per_borne'] = evolution_data['nb_vehicles'] / \
+            evolution_data['nb_bornes']
+
+        # Vérification si les données sont disponibles
+        if evolution_data.empty:
+            st.warning("Aucune donnée disponible pour l'analyse.")
         else:
             # Graphique interactif avec Plotly
-            fig3 = px.scatter(
-                agg_croisee,
-                x='nb_vp_rechargeables_el',
-                y='nb_bornes_recharge',
-                title=f"Véhicules électriques vs Bornes de recharge{
+            fig3 = px.line(
+                evolution_data,
+                x='annee',
+                y=['nb_bornes', 'nb_vehicles'],
+                title=f"Évolution du nombre de bornes et de véhicules électriques par année{
                     title_suffix}",
                 labels={
-                    'nb_vp_rechargeables_el': 'Nombre de véhicules électriques',
-                    'nb_bornes_recharge': 'Nombre de bornes de recharge'
+                    'annee': 'Année',
+                    'value': 'Nombre',
+                    'variable': 'Catégorie'
                 },
-                hover_data=['annee', 'nom_region', 'nom_departement',
-                            'libgeo']  # Ajout des métadonnées dans le survol
+                markers=True
             )
+
+            # Mise à jour des traces pour les différencier
+            fig3.update_traces(mode="lines+markers")
+            fig3.update_layout(
+                legend_title="Catégorie",
+                xaxis_title="Année",
+                yaxis_title="Nombre",
+                hovermode="x unified"
+            )
+
+            # Graphique 2 : Ratio véhicules par borne
+            fig4 = px.line(
+                evolution_data,
+                x='annee',
+                y='ratio_vehicles_per_borne',
+                title=f"Ratio du nombre de véhicules par borne par année{
+                    title_suffix}",
+                labels={
+                    'annee': 'Année',
+                    'ratio_vehicles_per_borne': 'Ratio véhicules/bornes'
+                },
+                markers=True
+            )
+            fig4.update_traces(mode="lines+markers")
+            fig4.update_layout(
+                xaxis_title="Année",
+                yaxis_title="Ratio véhicules/bornes",
+                hovermode="x unified",
+                shapes=[
+                    # Ligne horizontale à y=10 pour la référence
+                    dict(
+                        type="line",
+                        x0=evolution_data['annee'].min(),
+                        x1=evolution_data['annee'].max(),
+                        y0=10,
+                        y1=10,
+                        line=dict(color="red", width=2, dash="dash"),
+                    )
+                ]
+            )
+
+            # Affichage des graphiques
             st.plotly_chart(fig3)
+            st.plotly_chart(fig4)
