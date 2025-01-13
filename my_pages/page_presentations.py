@@ -416,4 +416,3 @@ def show(trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voitu
         map_tmja = create_map_tmja(dataset, geojson_data, col_granu, selected_year=2019)
         folium_static(map_tmja, width=800, height=600)
 
-modif = 1
