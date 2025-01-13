@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_vehicules_reg):
@@ -179,26 +181,46 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             st.warning("Aucune donnée disponible pour l'analyse.")
         else:
             # Graphique interactif avec Plotly
-            fig3 = px.line(
-                evolution_data,
-                x='annee',
-                y=['nb_borne_cumul', 'nb_vehicles'],
-                title=f"Évolution du nombre de bornes et de véhicules électriques par année{
-                    title_suffix}",
-                labels={
-                    'annee': 'Année',
-                    'value': 'Nombre',
-                    'variable': 'Catégorie'
-                },
-                markers=True
-            )
+            fig3 = go.Figure()
 
-            # Mise à jour des traces pour les différencier
-            fig3.update_traces(mode="lines+markers")
+            # Ajout des données pour les bornes
+            fig3.add_trace(go.Scatter(
+                x=evolution_data['annee'],
+                y=evolution_data['nb_borne_cumul'],
+                name='Nombre de bornes',
+                mode='lines+markers',
+                line=dict(color='blue'),
+                yaxis='y1'  # Premier axe Y
+            ))
+
+            # Ajout des données pour les véhicules
+            fig3.add_trace(go.Scatter(
+                x=evolution_data['annee'],
+                y=evolution_data['nb_vehicles'],
+                name='Nombre de véhicules électriques',
+                mode='lines+markers',
+                line=dict(color='green'),
+                yaxis='y2'  # Deuxième axe Y
+            ))
+
+            # Configuration des axes Y
             fig3.update_layout(
-                legend_title="Catégorie",
-                xaxis_title="Année",
-                yaxis_title="Nombre",
+                title=f"Évolution des bornes et véhicules électriques par année{
+                    title_suffix}",
+                xaxis=dict(title='Année'),
+                yaxis=dict(
+                    title='Nombre de bornes',
+                    titlefont=dict(color='blue'),
+                    tickfont=dict(color='blue'),
+                ),
+                yaxis2=dict(
+                    title='Nombre de véhicules électriques',
+                    titlefont=dict(color='green'),
+                    tickfont=dict(color='green'),
+                    overlaying='y',
+                    side='right'
+                ),
+                legend=dict(title='Catégorie'),
                 hovermode="x unified"
             )
 
