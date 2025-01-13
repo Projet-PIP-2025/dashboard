@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_vehicules_reg):
@@ -53,9 +55,11 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
     # ---- Filtrage des données ----
     filtered_data = voiture_commune.copy()
     filtered_data_croisee_reg = bornes_vehicules_reg.copy()
-    filtered_data_croisee_reg = pd.merge(filtered_data_croisee_reg, voiture_commune[["code_region", "nom_region"]], left_on="Code Région", right_on="code_region")
+    filtered_data_croisee_reg = pd.merge(filtered_data_croisee_reg, voiture_commune[[
+                                         "code_region", "nom_region"]], left_on="Code Région", right_on="code_region")
     filtered_data_croisee_dep = bornes_vehicules_dep.copy()
-    filtered_data_croisee_dep = pd.merge(filtered_data_croisee_dep, voiture_commune[["code_dep", "nom_departement"]], left_on="Departement", right_on="code_dep")
+    filtered_data_croisee_dep = pd.merge(filtered_data_croisee_dep, voiture_commune[[
+                                         "code_dep", "nom_departement"]], left_on="Departement", right_on="code_dep")
 
     # Appliquer le filtre par année
     if selected_year != "Toutes les années":
@@ -65,11 +69,13 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
     if granularite == "Région" and selected_option != "Toutes les régions":
         filtered_data = filtered_data[filtered_data['nom_region']
                                       == selected_option]
-        filtered_data_croisee_reg = filtered_data_croisee_reg[filtered_data_croisee_reg["nom_region"] == selected_option]
+        filtered_data_croisee_reg = filtered_data_croisee_reg[
+            filtered_data_croisee_reg["nom_region"] == selected_option]
     elif granularite == "Département" and selected_option != "Tous les départements":
         filtered_data = filtered_data[filtered_data['nom_departement']
                                       == selected_option]
-        filtered_data_croisee_dep = filtered_data_croisee_dep[filtered_data_croisee_dep["nom_departement"] == selected_option]
+        filtered_data_croisee_dep = filtered_data_croisee_dep[
+            filtered_data_croisee_dep["nom_departement"] == selected_option]
     elif granularite == "Commune" and selected_option != "Toutes les communes":
         filtered_data = filtered_data[filtered_data['libgeo']
                                       == selected_option]
@@ -90,7 +96,8 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
     # ---- Analyse : Nombre de véhicules électriques ----
     with tab1:
-        st.subheader(f"Analyse du nombre de véhicules électriques{title_suffix}")
+        st.subheader(f"Analyse du nombre de véhicules électriques{
+                     title_suffix}")
         agg_vehicules = filtered_data.groupby(
             'annee')['nb_vp_rechargeables_el'].sum().reset_index()
 
@@ -99,7 +106,8 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             agg_vehicules,
             x='annee',
             y='nb_vp_rechargeables_el',
-            title=f"Évolution du nombre de véhicules électriques{title_suffix}",
+            title=f"Évolution du nombre de véhicules électriques{
+                title_suffix}",
             labels={'annee': 'Année',
                     'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
             text='nb_vp_rechargeables_el'
@@ -116,19 +124,19 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
         if selected_year != "Toutes les années":
             agg_bornes = agg_bornes[agg_bornes['Annee'] == selected_year]
 
-        agg_bornes = agg_bornes['Annee'].value_counts()
+        agg_bornes = agg_bornes.groupby(
+            'Annee')['nb_borne_cumul'].sum().reset_index()
 
-        agg_bornes = agg_bornes.reset_index()
-        agg_bornes.columns = ['Annee', 'Nombre_de_bornes']
+        # agg_bornes.columns = ['Annee', 'Nombre_de_bornes']
 
         # Tri par année
-        agg_bornes = agg_bornes.sort_values(by='Annee')
+        # agg_bornes = agg_bornes.sort_values(by='Annee')
 
         # Graphique interactif avec Plotly
         fig2 = px.line(
             agg_bornes,
             x='Annee',
-            y='Nombre_de_bornes',
+            y='nb_borne_cumul',
             title=f"Évolution du nombre de bornes de recharge{title_suffix}",
             labels={'Annee': 'Année',
                     'Nombre_de_bornes': 'Nombre de bornes de recharge'},
@@ -148,9 +156,12 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
         bornes["libgeo"] = bornes["commune"]
 
         agg_bornes = bornes.copy()
-        agg_bornes = agg_bornes['annee'].value_counts().reset_index()
-        agg_bornes.columns = ['annee', 'nb_bornes']
-        agg_bornes = agg_bornes.sort_values(by='annee')
+        agg_bornes = agg_bornes.groupby(
+            'annee')['nb_borne_cumul'].sum().reset_index()
+
+        # agg_bornes = agg_bornes['annee'].value_counts().reset_index()
+        # agg_bornes.columns = ['annee', 'nb_bornes']
+        # agg_bornes = agg_bornes.sort_values(by='annee')
 
         # Agrégation des véhicules électriques par année
         agg_vehicles = filtered_data.groupby(
@@ -163,32 +174,53 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
         # Calcul du ratio véhicules par borne
         evolution_data['ratio_vehicles_per_borne'] = evolution_data['nb_vehicles'] / \
-            evolution_data['nb_bornes']
+            evolution_data['nb_borne_cumul']
 
         # Vérification si les données sont disponibles
         if evolution_data.empty:
             st.warning("Aucune donnée disponible pour l'analyse.")
         else:
             # Graphique interactif avec Plotly
-            fig3 = px.line(
-                evolution_data,
-                x='annee',
-                y=['nb_bornes', 'nb_vehicles'],
-                title=f"Évolution du nombre de bornes et de véhicules électriques par année{title_suffix}",
-                labels={
-                    'annee': 'Année',
-                    'value': 'Nombre',
-                    'variable': 'Catégorie'
-                },
-                markers=True
-            )
+            fig3 = go.Figure()
 
-            # Mise à jour des traces pour les différencier
-            fig3.update_traces(mode="lines+markers")
+            # Ajout des données pour les bornes
+            fig3.add_trace(go.Scatter(
+                x=evolution_data['annee'],
+                y=evolution_data['nb_borne_cumul'],
+                name='Nombre de bornes',
+                mode='lines+markers',
+                line=dict(color='blue'),
+                yaxis='y1'  # Premier axe Y
+            ))
+
+            # Ajout des données pour les véhicules
+            fig3.add_trace(go.Scatter(
+                x=evolution_data['annee'],
+                y=evolution_data['nb_vehicles'],
+                name='Nombre de véhicules électriques',
+                mode='lines+markers',
+                line=dict(color='green'),
+                yaxis='y2'  # Deuxième axe Y
+            ))
+
+            # Configuration des axes Y
             fig3.update_layout(
-                legend_title="Catégorie",
-                xaxis_title="Année",
-                yaxis_title="Nombre",
+                title=f"Évolution des bornes et véhicules électriques par année{
+                    title_suffix}",
+                xaxis=dict(title='Année'),
+                yaxis=dict(
+                    title='Nombre de bornes',
+                    titlefont=dict(color='blue'),
+                    tickfont=dict(color='blue'),
+                ),
+                yaxis2=dict(
+                    title='Nombre de véhicules électriques',
+                    titlefont=dict(color='green'),
+                    tickfont=dict(color='green'),
+                    overlaying='y',
+                    side='right'
+                ),
+                legend=dict(title='Catégorie'),
                 hovermode="x unified"
             )
 
@@ -197,7 +229,8 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
                 evolution_data,
                 x='annee',
                 y='ratio_vehicles_per_borne',
-                title=f"Ratio du nombre de véhicules par borne par année{title_suffix}",
+                title=f"Ratio du nombre de véhicules par borne par année{
+                    title_suffix}",
                 labels={
                     'annee': 'Année',
                     'ratio_vehicles_per_borne': 'Ratio véhicules/bornes'
@@ -210,7 +243,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
                 yaxis_title="Ratio véhicules/bornes",
                 hovermode="x unified",
                 yaxis=dict(range=[0, 150]),
-                #xaxis=dict(range=[2020, 2024, 1]),
+                # xaxis=dict(range=[2020, 2024, 1]),
                 shapes=[
                     # Ligne horizontale à y=10 pour la référence
                     dict(
@@ -337,5 +370,3 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
                 fig7.update_xaxes(showspikes=False)
                 st.plotly_chart(fig7)
-
-
