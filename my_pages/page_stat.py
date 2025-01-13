@@ -112,19 +112,19 @@ def show(voiture_commune, voiture_region, bornes):
         if selected_year != "Toutes les années":
             agg_bornes = agg_bornes[agg_bornes['Annee'] == selected_year]
 
-        agg_bornes = agg_bornes['Annee'].value_counts()
+        agg_bornes = agg_bornes.groupby(
+            'Annee')['nb_borne_cumul'].sum().reset_index()
 
-        agg_bornes = agg_bornes.reset_index()
-        agg_bornes.columns = ['Annee', 'Nombre_de_bornes']
+        # agg_bornes.columns = ['Annee', 'Nombre_de_bornes']
 
         # Tri par année
-        agg_bornes = agg_bornes.sort_values(by='Annee')
+        # agg_bornes = agg_bornes.sort_values(by='Annee')
 
         # Graphique interactif avec Plotly
         fig2 = px.line(
             agg_bornes,
             x='Annee',
-            y='Nombre_de_bornes',
+            y='nb_borne_cumul',
             title=f"Évolution du nombre de bornes de recharge{title_suffix}",
             labels={'Annee': 'Année',
                     'Nombre_de_bornes': 'Nombre de bornes de recharge'},
@@ -144,9 +144,12 @@ def show(voiture_commune, voiture_region, bornes):
         bornes["libgeo"] = bornes["commune"]
 
         agg_bornes = bornes.copy()
-        agg_bornes = agg_bornes['annee'].value_counts().reset_index()
-        agg_bornes.columns = ['annee', 'nb_bornes']
-        agg_bornes = agg_bornes.sort_values(by='annee')
+        agg_bornes = agg_bornes.groupby(
+            'annee')['nb_borne_cumul'].sum().reset_index()
+
+        # agg_bornes = agg_bornes['annee'].value_counts().reset_index()
+        # agg_bornes.columns = ['annee', 'nb_bornes']
+        # agg_bornes = agg_bornes.sort_values(by='annee')
 
         # Agrégation des véhicules électriques par année
         agg_vehicles = filtered_data.groupby(
@@ -159,7 +162,7 @@ def show(voiture_commune, voiture_region, bornes):
 
         # Calcul du ratio véhicules par borne
         evolution_data['ratio_vehicles_per_borne'] = evolution_data['nb_vehicles'] / \
-            evolution_data['nb_bornes']
+            evolution_data['nb_borne_cumul']
 
         # Vérification si les données sont disponibles
         if evolution_data.empty:
@@ -169,7 +172,7 @@ def show(voiture_commune, voiture_region, bornes):
             fig3 = px.line(
                 evolution_data,
                 x='annee',
-                y=['nb_bornes', 'nb_vehicles'],
+                y=['nb_borne_cumul', 'nb_vehicles'],
                 title=f"Évolution du nombre de bornes et de véhicules électriques par année{
                     title_suffix}",
                 labels={
