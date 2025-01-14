@@ -25,6 +25,9 @@ def load_data():
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv")
     bornes = pd.read_csv("data/bornes_completes.csv")
     bornes2 = pd.read_csv("data/Bornes_nettoye2.csv" , delimiter = ";")
+    bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";")
+    pred_reg = pd.read_csv("data/Pred_Reg_tout.csv" , delimiter = ";")
+    pred_ve = pd.read_csv("data/Pred_ve_tout.csv" , delimiter = ";")
     # bornes_sans_date = 
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
@@ -35,10 +38,10 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return bornes2, bornes, bornes_pred, pred_reg, pred_ve,  nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
 
-bornes2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+bornes2,bornes, bornes_pred, pred_reg, pred_ve,  nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -104,7 +107,7 @@ def main():
         page_stat.show(nb_voitures, nb_voiture_commune, bornes)
 
     elif selected_page == "Prédictions":
-        page_predictions.show(bornes2)
+        page_predictions.show(bornes_pred, pred_reg, pred_ve)
 
     elif selected_page == "Recommandations":
         page_recommandations.show()
