@@ -27,11 +27,15 @@ def load_data():
     bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
     
     bornes = pd.read_csv("data/bornes_completes.csv")
-    bornes2 = pd.read_csv("data/Bornes_nettoye2.csv", delimiter = ";")
+    bornes2 = pd.read_csv("data/Bornes_nettoye2.csv" , delimiter = ";")
+    bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";")
+    pred_reg = pd.read_csv("data/Pred_Reg_tout.csv" , delimiter = ";")
+    pred_ve = pd.read_csv("data/Pred_ve_tout.csv" , delimiter = ";")
     population2 = pd.read_csv("data/population2.csv")
     trafic_dep = pd.read_csv("data/tmja_dep_df.csv")
     trafic_reg = pd.read_csv("data/tmja_reg.csv")
 
+    # bornes_sans_date = 
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
     
@@ -42,10 +46,10 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
 
-bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -111,7 +115,7 @@ def main():
         page_stat.show(nb_voitures, nb_voiture_commune, bornes, bornes_vehicules_dep, bornes_vehicules_reg)
 
     elif selected_page == "Prédictions":
-        page_predictions.show(bornes2)
+        page_predictions.show(bornes_pred, pred_reg, pred_ve)
 
     elif selected_page == "Recommandations":
         page_recommandations.show()
