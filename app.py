@@ -34,6 +34,7 @@ def load_data():
     population2 = pd.read_csv("data/population2.csv")
     trafic_dep = pd.read_csv("data/tmja_dep_df.csv")
     trafic_reg = pd.read_csv("data/tmja_reg.csv")
+    reco_borne_ve = pd.read_csv("data/tab_reco_borne_pour_ve.csv" , delimiter = ";")
 
     # bornes_sans_date = 
     with open("data/communes.geojson", 'r') as f:
@@ -46,10 +47,10 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
 
-pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -118,7 +119,7 @@ def main():
         page_predictions.show(bornes_pred, pred_reg, pred_ve)
 
     elif selected_page == "Recommandations":
-        page_recommandations.show()
+        page_recommandations.show(reco_borne_ve)
 
 
 if __name__ == "__main__":
