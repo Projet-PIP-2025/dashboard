@@ -178,8 +178,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             agg_ratio,
             x='annee',
             y='ratio_ve',
-            title=f"Évolution du ratio véhicules électriques / total{
-                title_suffix}",
+            title=f"Évolution du ratio véhicules électriques / total{title_suffix}",
             labels={
                 'annee': 'Année',
                 'ratio_ve': 'Ratio véhicules électriques / total'
@@ -327,8 +326,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
             # Configuration des axes Y
             fig3.update_layout(
-                title=f"Évolution des bornes et véhicules électriques par année{
-                    title_suffix}",
+                title=f"Évolution des bornes et véhicules électriques par année{title_suffix}",
                 xaxis=dict(title='Année', tickfont=dict(size=16)),
                 yaxis=dict(
                     title='Nombre de bornes',
@@ -353,8 +351,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
                 evolution_data,
                 x='annee',
                 y='ratio_vehicles_per_borne',
-                title=f"Ratio du nombre de véhicules par borne par année{
-                    title_suffix}",
+                title=f"Ratio du nombre de véhicules par borne par année{title_suffix}",
                 labels={
                     'annee': 'Année',
                     'ratio_vehicles_per_borne': 'Ratio véhicules/bornes'
@@ -385,113 +382,3 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             st.plotly_chart(fig3)
             st.plotly_chart(fig4)
 
-            if selected_option == "Aucun":
-                fig5 = px.scatter(
-                    filtered_data_croisee_reg,
-                    x='Nombre bornes',
-                    hover_data=['Code Région', 'region'],
-                    y='nb_vp_rechargeables_el',
-                    size_max=32,
-                    opacity=0.8,
-                    title="Relation entre le nombre de bornes et de véhicules rechargeables par Région",
-                    labels={
-                        "Nombre bornes": "Nombre de Bornes",
-                        "nb_vp_rechargeables_el": "Nombre de Véhicules Rechargeables",
-                    },
-                )
-
-                fig5.update_layout(
-                    xaxis_title="Nombre de Bornes",
-                    yaxis_title="Nombre de Véhicules Rechargeables",
-                    showlegend=False,
-                )
-
-                fig5.update_xaxes(showspikes=False)
-                st.plotly_chart(fig5)
-
-                fig6 = px.scatter(
-                    filtered_data_croisee_dep,
-                    x="nb_bornes",
-                    y="nb_vp_rechargeables_el",
-                    hover_data=["Departement", "Nom Departement"],
-                    size=None,
-                    opacity=0.8,
-                    title="Relation entre le nombre de bornes et de véhicules rechargeables par Département",
-                    labels={
-                        "nb_bornes": "Nombre de Bornes",
-                        "nb_vp_rechargeables_el": "Nombre de Véhicules Rechargeables",
-                    },
-                )
-
-                fig6.update_layout(
-                    xaxis_title="Nombre de Bornes",
-                    yaxis_title="Nombre de Véhicules Rechargeables",
-                    showlegend=False,
-                )
-                fig6.update_xaxes(showspikes=False)
-                st.plotly_chart(fig6)
-
-                fig8 = px.scatter(
-                    filtered_data_croisee_reg,
-                    x='region',
-                    y='Ratio',
-                    opacity=0.8,
-                    size_max=32,
-                    title="Ratio Véhicules par Bornes par Région",
-                    labels={
-                        "region": "Région",
-                        "Ratio": "Ratio Véhicules par Bornes",
-                    }
-                )
-
-                fig8.add_shape(
-                    type='line',
-                    x0=-0.5, x1=1, y0=10, y1=10,
-                    line=dict(color='red', dash='dash', width=1.5),
-                    xref='paper', yref='y',
-                    name="y = 10",
-                )
-
-                fig8.update_layout(
-                    xaxis_title="Régions",
-                    yaxis_title="Ratio",
-                    xaxis=dict(tickangle=90),
-                    yaxis=dict(range=[0, 40]),
-                    margin=dict(b=100),
-                    showlegend=False
-                )
-
-                fig8.update_xaxes(showspikes=False)
-                st.plotly_chart(fig8)
-
-                fig7 = px.scatter(
-                    filtered_data_croisee_dep,
-                    x="Nom Departement",
-                    y="Ratio vehicules par bornes",
-                    title="Ratio Véhicules par Bornes par Département",
-                    labels={
-                        "Departement": "Département",
-                        "Ratio vehicules par bornes": "Ratio Véhicules par Bornes",
-                    },
-                    opacity=0.8,
-                )
-
-                fig7.add_shape(
-                    type="line",
-                    x0=0, x1=1, y0=10, y1=10,
-                    xref="paper",
-                    yref="y",
-                    line=dict(color="red", dash="dash", width=1.5),
-                    name="y = 10",
-                )
-
-                fig7.update_layout(
-                    xaxis=dict(tickangle=90),
-                    yaxis=dict(range=[0, 75]),
-                    margin=dict(b=100),
-                    xaxis_title="Département",
-                    yaxis_title="Ratio Véhicules par Bornes",
-                )
-
-                fig7.update_xaxes(showspikes=False)
-                st.plotly_chart(fig7)
