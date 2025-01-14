@@ -168,4 +168,5 @@ def show(bornes):
     #st.write(borne_data["date_mise_en_service"].head())
     #st.write("Type :", type(borne_data["date_mise_en_service"].iloc[0]))
     #st.write(borne_data["Mois_Annee"].head())
+    
     # Ajoute ici le contenu spécifique à cette page
