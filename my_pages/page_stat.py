@@ -154,23 +154,44 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             orientation='h',
             title=f"Top 10 {"ville" if granularite == "Aucun" else granularite.lower(
             )}s avec le plus grand nombre de véhicules électriques",
-            labels={'Nom': f'{granularite}',
-                    'Nombre de véhicules': 'Nombre de véhicules électriques'},
+            labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}',
+                    'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
             # text='Nombre de véhicules'
-        )
-
-        # Mise à jour du style du graphique
-        fig_top.update_layout(
-            xaxis_title="Nombre de véhicules électriques",
-            yaxis_title=f"{"ville" if granularite ==
-                           "Aucun" else granularite.lower()}",
-            # Inverser l'ordre pour afficher les plus grands en haut
-            yaxis=dict(autorange="reversed"),
-            hovermode="y unified"
         )
 
         # Affichage du graphique
         st.plotly_chart(fig_top)
+
+        st.subheader(
+            f"Analyse du ratio véhicules électriques / total{title_suffix}")
+
+        # Calculer le ratio pour chaque entrée
+        filtered_data['ratio_ve'] = filtered_data['nb_vp_rechargeables_el'] / \
+            filtered_data['nb_vp']
+
+        # Agréger les données par année
+        agg_ratio = filtered_data.groupby(
+            'annee')['ratio_ve'].mean().reset_index()
+
+        # Graphique interactif avec Plotly
+        fig_ratio = px.line(
+            agg_ratio,
+            x='annee',
+            y='ratio_ve',
+            title=f"Évolution du ratio véhicules électriques / total{
+                title_suffix}",
+            labels={
+                'annee': 'Année',
+                'ratio_ve': 'Ratio véhicules électriques / total'
+            },
+            markers=True
+        )
+        fig_ratio.update_yaxes(tickformat=".2%")  # Affichage en pourcentage
+        fig_ratio.update_xaxes(
+            tickformat="%Y",
+            tickmode="linear",
+            dtick="M12")
+        st.plotly_chart(fig_ratio)
 
     # ---- Analyse : Nombre de bornes de recharge ----
     with tab2:
@@ -196,7 +217,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             y='nb_borne_cumul',
             title=f"Évolution du nombre de bornes de recharge{title_suffix}",
             labels={'Annee': 'Année',
-                    'Nombre_de_bornes': 'Nombre de bornes de recharge'},
+                    'nb_borne_cumul': 'Nombre de bornes de recharge'},
             markers=True
         )
         st.plotly_chart(fig2)
@@ -206,35 +227,38 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
         # Agrégation des données pour le Top 10 selon la granularité choisie
         top_bornes_data = bornes.copy()
+        top_bornes_data = top_bornes_data.groupby('commune', as_index=False)[
+            'nb_borne'].sum()
         top_bornes_data["Nom"] = top_bornes_data["commune"]
 
         if granularite == "Commune":
-            top_bornes_data = agg_bornes.groupby('commune', as_index=False)[
+            top_bornes_data = top_bornes_data.groupby('commune', as_index=False)[
                 'nb_borne'].sum()
             top_bornes_data["Nom"] = top_bornes_data["commune"]
         elif granularite == "Région":
-            top_bornes_data = agg_bornes.groupby('nom_region', as_index=False)[
+            top_bornes_data = top_bornes_data.groupby('nom_region', as_index=False)[
                 'nb_borne'].sum()
             top_bornes_data["Nom"] = top_bornes_data["nom_region"]
         elif granularite == "Département":
-            top_bornes_data = agg_bornes.groupby('nom_departement', as_index=False)[
+            top_bornes_data = top_bornes_data.groupby('nom_departement', as_index=False)[
                 'nb_borne'].sum()
             top_bornes_data["Nom"] = top_bornes_data["nom_departement"]
 
         # Tri et sélection du Top 10
-        top_bornes_data = top_bornes_data.sort_values(
+        top_bornes_data2 = top_bornes_data.sort_values(
             by='nb_borne', ascending=False).head(10)
+
+        # print(top_bornes_data2)
 
         # Graphique interactif du Top 10
         fig_top_bornes = px.bar(
-            top_bornes_data,
-            x='Nom',
-            y='nb_borne',
-            title=f"Top 10 des {
-                granularite.lower()}s avec le plus de bornes de recharge",
-            labels={'Nom': granularite,
-                    'Nombre de bornes': 'Nombre de bornes de recharge'},
-            # text='Nombre de bornes'
+            top_bornes_data2,
+            x='nb_borne',
+            y='Nom',
+            title=f"Top 10 des {"ville" if granularite == "Aucun" else granularite.lower(
+            )}s avec le plus de bornes de recharge",
+            labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}',
+                    'nb_borne': 'Nombre de bornes de recharge'},
         )
         fig_top_bornes.update_traces(textposition='outside')
         fig_top_bornes.update_layout(xaxis_tickangle=-45)
@@ -305,22 +329,24 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             fig3.update_layout(
                 title=f"Évolution des bornes et véhicules électriques par année{
                     title_suffix}",
-                xaxis=dict(title='Année'),
+                xaxis=dict(title='Année', tickfont=dict(size=16)),
                 yaxis=dict(
                     title='Nombre de bornes',
-                    titlefont=dict(color='blue'),
-                    tickfont=dict(color='blue'),
+                    titlefont=dict(color='blue', size=16),
+                    tickfont=dict(color='blue', size=16),
                 ),
                 yaxis2=dict(
                     title='Nombre de véhicules électriques',
-                    titlefont=dict(color='green'),
-                    tickfont=dict(color='green'),
+                    titlefont=dict(color='green', size=16),
+                    tickfont=dict(color='green', size=16),
                     overlaying='y',
                     side='right'
                 ),
-                legend=dict(title='Catégorie'),
+                legend=dict(title='Catégorie', orientation="h",
+                            yanchor="bottom", y=1.02, xanchor="right", x=1),
                 hovermode="x unified"
             )
+            fig3.update_xaxes(tickformat="%Y", tickmode="linear", dtick="M12")
 
             # Graphique 2 : Ratio véhicules par borne
             fig4 = px.line(
@@ -354,6 +380,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
                     )
                 ]
             )
+            fig4.update_xaxes(tickformat="%Y", tickmode="linear", dtick="M12")
 
             st.plotly_chart(fig3)
             st.plotly_chart(fig4)
