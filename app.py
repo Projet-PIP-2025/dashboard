@@ -37,15 +37,20 @@ def load_data():
     
     with open("data/france_departments.geojson", 'r') as f:
         geojson_data_dep = json.load(f)
-    
+    with open("data/carte_interactive_avec_bornes.html", "r"   ) as file:
+        carte_html = file.read()
+    with open("data/Carte_html/carte_commune_2023.html", "r"   ) as file:
+        carte_html_commune = file.read()
+    with open("data/carte_tmja_troncons.html", "r"   ) as file:
+        carte_html2 = file.read()
 
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return carte_html_commune,carte_html2,carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
 
-bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+carte_html_commune,carte_html2,carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -102,9 +107,10 @@ def main():
             * **Charly**
             """
         )
-
+        st.title("Carte Interactive")
+        st.components.v1.html(carte_html_commune, height=500, width=800)
     elif selected_page == "Carte":
-        page_presentations.show(trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+        page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":

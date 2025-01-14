@@ -210,7 +210,7 @@ def create_map_population(dataset, geojson_data, col_granu, col_year, info_carte
 
     return map
 
-def show(trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg):
     st.title("Page 1 : Présentation des données")
     st.write("Bienvenue sur la page de présentation des données.")
@@ -400,7 +400,7 @@ def show(trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voitu
         
         granularity4 = st.selectbox(
             "Niveau de granularité :",
-            options=["département", "région"],
+            options=["département", "région","trafic"],
             key="slider_granularity_traf"
         )
 
@@ -408,11 +408,16 @@ def show(trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voitu
             col_granu = "code_region"
             geojson_data = geojson_data_reg
             dataset = trafic_reg
+            map_tmja = create_map_tmja(dataset, geojson_data, col_granu, selected_year=2019)
+            folium_static(map_tmja, width=800, height=600)
+        elif granularity4 == "trafic":
+            st.title("Carte Interactive")
+            st.components.v1.html(carte_html2, height=500, width=800)
         else:
             col_granu = "code_departement"
             geojson_data = geojson_data_dep
             dataset = trafic_dep
     # Créer la carte
-        map_tmja = create_map_tmja(dataset, geojson_data, col_granu, selected_year=2019)
-        folium_static(map_tmja, width=800, height=600)
+            map_tmja = create_map_tmja(dataset, geojson_data, col_granu, selected_year=2019)
+            folium_static(map_tmja, width=800, height=600)
 
