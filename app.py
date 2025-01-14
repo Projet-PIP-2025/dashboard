@@ -28,21 +28,24 @@ def load_data():
     
     bornes = pd.read_csv("data/bornes_completes.csv")
     bornes2 = pd.read_csv("data/Bornes_nettoye2.csv", delimiter = ";")
-    # bornes_sans_date = 
+    population2 = pd.read_csv("data/population2.csv")
+    trafic_dep = pd.read_csv("data/tmja_dep_df.csv")
+    trafic_reg = pd.read_csv("data/tmja_reg.csv")
 
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
     
     with open("data/france_departments.geojson", 'r') as f:
         geojson_data_dep = json.load(f)
+    
 
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_vehicules_dep, bornes_vehicules_reg
+    return bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
 
-bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_vehicules_dep, bornes_vehicules_reg = load_data()
+bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -101,7 +104,7 @@ def main():
         )
 
     elif selected_page == "Carte":
-        page_presentations.show(bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+        page_presentations.show(trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":

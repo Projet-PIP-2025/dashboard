@@ -6,48 +6,52 @@ import numpy as np
 import plotly.express as px
 from folium.plugins import HeatMap
 from streamlit_folium import folium_static
+from folium import Choropleth, LayerControl, GeoJsonTooltip
 
-def create_map_borne(nb_borne_data, geojson_data, col_granu, info_carte, selected_year):
+def create_map_tmja(tmja_data, geojson_data, col_granu, selected_year):
+    """
+    Crée une carte interactive affichant le TMJA moyen par département.
+
+    :param tmja_data: DataFrame contenant les données TMJA avec une colonne pour le code département et le TMJA moyen
+    :param geojson_data: GeoJSON des départements français
+    :param col_granu: Nom de la colonne utilisée pour la granularité (ex. 'code_departement')
+    :param selected_year: Année sélectionnée pour personnaliser les informations (actuellement non utilisée directement)
+    :return: Carte Folium
+    """
     # Initialisation de la carte centrée sur la France
     map = folium.Map(location=[46.603354, 1.8883344], zoom_start=6, tiles='CartoDB positron')
 
-    if info_carte == "nombre de borne":
-        # Utiliser la colonne correspondante pour le nombre de bornes
-        col = 'nb_borne_cumul'
-    elif info_carte == "densité de bornes par véhicule":
-        # Pour un ratio, il faudra peut-être avoir une colonne pour les véhicules ou une donnée supplémentaire
-        col = 'density_borne_vehicle'
-
     # Convertir les données en dictionnaire pour relier avec le GeoJSON
-    vehicle_dict = nb_borne_data.set_index(col_granu)[col].to_dict()
+    tmja_dict = tmja_data.set_index(col_granu)['tmja_moyen'].to_dict()
     # Mettre les keys sous format string
-    vehicle_dict = {str(k): v for k, v in vehicle_dict.items()}
+    tmja_dict = {str(k): v for k, v in tmja_dict.items()}
+    print(tmja_dict)
 
     # Ajouter les données au GeoJSON
     for feature in geojson_data['features']:
-        feature_code = feature['properties'][col_granu]  # Utilisation de la clé pour la granularité choisie
-        feature['properties']['bornes'] = vehicle_dict.get(str(feature_code), 'N/A')
+        feature_code = feature['properties']["code"]  # Utilisation de la clé pour la granularité choisie
+        feature['properties']['tmja'] = tmja_dict.get(str(feature_code), 'Pas de données')
 
     # Ajouter un choropleth pour afficher les données
     folium.Choropleth(
         geo_data=geojson_data,
-        name="Bornes électriques par département",
-        data=nb_borne_data,
-        columns=[col_granu, col],
-        key_on=f'feature.properties.{col_granu}',  # Assurer que la clé correspond au code dans le GeoJSON
-        fill_color='YlGnBu',
+        name="TMJA moyen par département",
+        data=tmja_data,
+        columns=[col_granu, 'tmja_moyen'],
+        key_on=f'feature.properties.code',  # Assurer que la clé correspond au code dans le GeoJSON
+        fill_color='Blues',
         fill_opacity=0.7,
         line_opacity=0.05,
-        legend_name="Nombre de bornes électriques"
+        legend_name="TMJA moyen (valeurs disponibles)"
     ).add_to(map)
 
     # Ajouter des tooltips interactifs
     folium.GeoJson(
         geojson_data,
         name="Détails",
-        tooltip=folium.GeoJsonTooltip(
-            fields=[col_granu, 'nom', 'bornes'],
-            aliases=[f'{col_granu} :', 'Nom :', 'Bornes électriques :']
+        tooltip=GeoJsonTooltip(
+            fields=["code", 'nom', 'tmja'],
+            aliases=[f'code :', 'Nom :', 'TMJA :']
         )
     ).add_to(map)
 
@@ -55,8 +59,6 @@ def create_map_borne(nb_borne_data, geojson_data, col_granu, info_carte, selecte
     folium.LayerControl().add_to(map)
 
     return map
-
-
 
 def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
     # Initialisation de la carte centrée sur la France
@@ -152,7 +154,63 @@ def create_map_borne(nb_voiture_commune_dep, geojson_data,col_granu):
     
     return map
 
-def show(bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+def create_map_population(dataset, geojson_data, col_granu, col_year, info_carte="Population"):
+    """
+    Crée une carte interactive pour visualiser les données démographiques.
+
+    Args:
+        dataset (pd.DataFrame): Données filtrées pour l'année et la granularité choisies.
+        geojson_data (dict): Données GeoJSON correspondantes à la granularité.
+        col_granu (str): Colonne utilisée pour relier les données géographiques et populationnelles.
+        col_year (str): Colonne représentant l'année sélectionnée dans les données.
+        info_carte (str): Légende de la carte.
+
+    Returns:
+        folium.Map: Carte interactive.
+    """
+    # Initialisation de la carte centrée sur la France
+    map = folium.Map(location=[46.603354, 1.8883344], zoom_start=6, tiles='CartoDB positron')
+
+    # Convertir les données en dictionnaire
+    population_dict = dataset.set_index(col_granu)[col_year].to_dict()
+
+    # Mettre les clés au format chaîne de caractères (nécessaire pour GeoJSON)
+    population_dict = {str(k): v for k, v in population_dict.items()}
+
+    # Ajout des données de population aux propriétés GeoJSON
+    for feature in geojson_data['features']:
+        feature_code = str(feature['properties']['code'])
+        feature['properties']['population'] = population_dict.get(feature_code, 'N/A')
+
+    # Ajouter un choropleth pour afficher les données de population
+    folium.Choropleth(
+        geo_data=geojson_data,
+        name=f"{info_carte} par territoires",
+        data=dataset,
+        columns=[col_granu, col_year],
+        key_on='feature.properties.code',
+        fill_color='YlGnBu',
+        fill_opacity=0.7,
+        line_opacity=0.05,
+        legend_name=info_carte
+    ).add_to(map)
+
+    # Ajouter des info-bulles interactives pour afficher des informations détaillées
+    folium.GeoJson(
+        geojson_data,
+        name="Détails",
+        tooltip=folium.GeoJsonTooltip(
+            fields=['code', 'nom', 'population'],
+            aliases=['Code :', 'Nom :', f'{info_carte} :']
+        )
+    ).add_to(map)
+
+    # Ajout des contrôles de couches
+    folium.LayerControl().add_to(map)
+
+    return map
+
+def show(trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg):
     st.title("Page 1 : Présentation des données")
     st.write("Bienvenue sur la page de présentation des données.")
@@ -281,6 +339,80 @@ def show(bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
             folium_static(map, width=800, height=600)
 
     with tab3:
-        st.write("Population")
+        col_annee = ["p13_pop","p14_pop","p15_pop","p16_pop",
+                     "p17_pop","p18_pop","p19_pop","p20_pop","p21_pop","p22_pop"]
+        dictionnaire = {2013: "p13_pop", 2014: "p14_pop", 2015: "p15_pop", 2016: "p16_pop",
+                        2017: "p17_pop", 2018: "p18_pop", 2019: "p19_pop", 2020: "p20_pop",
+                        2021: "p21_pop", 2022: "p22_pop"}
+        population_com = population[['codgeo_insee', 'libgeo'] + col_annee]
+        population_dep = population[['dep', 'nom_departement'] + col_annee]
+        population_reg = population[['reg', 'nom_region'] + col_annee]
+        population_dep = population.groupby(['dep', 'nom_departement'])[col_annee].sum().reset_index()
+        population_reg = population.groupby(['reg', 'nom_region'])[col_annee].sum().reset_index()
+        with st.container():
+            # Utiliser des colonnes pour aligner les filtres
+            col_pop1, col_pop2 = st.columns([1, 1])
+
+            # Filtre de l'année
+            with col_pop1:
+                selected_year3 = st.slider(
+                    "Sélectionnez une année :",
+                    min_value=2013,
+                    max_value=2022,
+                    value=2022,  # Valeur par défaut
+                    step=1,
+                    key="slider_year_pop"
+                )
+            selected_year3 = dictionnaire[selected_year3]
+            # Filtre de granularité
+            with col_pop2:
+                granularity3 = st.selectbox(
+                    "Niveau de granularité :",
+                    options=["département", "commune", "région"],
+                    key="slider_granularity_pop"
+                )
+
+            if granularity3 == "commune":
+                col_granu = "codgeo_insee"
+                geojson_data = geojson_data_com
+                dataset = population_com
+            elif granularity3 == "reg":
+                col_granu = "code_region"
+                geojson_data = geojson_data_reg
+                dataset = population_reg
+            else:
+                col_granu = "dep"
+                geojson_data = geojson_data_dep
+                dataset = population_dep
+
+
+            
+    
+
+            # Créer la carte avec les bornes
+            map = create_map_population(dataset, geojson_data, col_granu, selected_year3, info_carte="Population")
+            folium_static(map, width=800, height=600)
     with tab4:
-        st.write("Trafic")
+        
+        # Utiliser des colonnes pour aligner les filtres
+        
+
+        
+        granularity4 = st.selectbox(
+            "Niveau de granularité :",
+            options=["département", "région"],
+            key="slider_granularity_traf"
+        )
+
+        if granularity4 == "région":
+            col_granu = "code_region"
+            geojson_data = geojson_data_reg
+            dataset = trafic_reg
+        else:
+            col_granu = "code_departement"
+            geojson_data = geojson_data_dep
+            dataset = trafic_dep
+    # Créer la carte
+        map_tmja = create_map_tmja(dataset, geojson_data, col_granu, selected_year=2019)
+        folium_static(map_tmja, width=800, height=600)
+
