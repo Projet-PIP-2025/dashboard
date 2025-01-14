@@ -179,7 +179,6 @@ def show(voiture_commune, voiture_region, bornes):
                 },
                 markers=True
             )
-
             # Mise à jour des traces pour les différencier
             fig3.update_traces(mode="lines+markers")
             fig3.update_layout(
@@ -188,7 +187,6 @@ def show(voiture_commune, voiture_region, bornes):
                 yaxis_title="Nombre",
                 hovermode="x unified"
             )
-
             # Graphique 2 : Ratio véhicules par borne
             fig4 = px.line(
                 evolution_data,
@@ -219,7 +217,6 @@ def show(voiture_commune, voiture_region, bornes):
                     )
                 ]
             )
-
             # Affichage des graphiques
             st.plotly_chart(fig3)
             st.plotly_chart(fig4)
