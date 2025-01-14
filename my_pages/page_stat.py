@@ -115,6 +115,63 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
         fig1.update_traces(textposition='outside')
         st.plotly_chart(fig1)
 
+        # ---- Top 10 par granularité ----
+        st.subheader(
+            "Top 10 nombre de véhicules électriques")
+
+        top_data = filtered_data.copy()
+        top_data["Nom"] = top_data["libgeo"]
+
+        # Agrégation des données pour le Top 10
+        if granularite == "Région":
+            top_data = filtered_data.groupby('nom_region', as_index=False)[
+                'nb_vp_rechargeables_el'].sum()
+            top_data["Nom"] = top_data["nom_region"]
+            # top_data = top_data.rename(
+            #     columns={'nom_region': 'Nom', 'nb_vp_rechargeables_el': 'Nombre de véhicules'})
+        elif granularite == "Département":
+            top_data = filtered_data.groupby('nom_departement', as_index=False)[
+                'nb_vp_rechargeables_el'].sum()
+            top_data["Nom"] = top_data["nom_departement"]
+            # top_data = top_data.rename(
+            #     columns={'nom_departement': 'Nom', 'nb_vp_rechargeables_el': 'Nombre de véhicules'})
+        elif granularite == "Commune":
+            top_data = filtered_data.groupby('libgeo', as_index=False)[
+                'nb_vp_rechargeables_el'].sum()
+            top_data["Nom"] = top_data["libgeo"]
+            # top_data = top_data.rename(
+            #     columns={'libgeo': 'Nom', 'nb_vp_rechargeables_el': 'Nombre de véhicules'})
+
+        # Tri et sélection des 10 premiers
+        top_data2 = top_data.sort_values(
+            by='nb_vp_rechargeables_el', ascending=False).head(10)
+
+        # Graphique interactif : Top 10
+        fig_top = px.bar(
+            top_data2,
+            x='nb_vp_rechargeables_el',
+            y='Nom',
+            orientation='h',
+            title=f"Top 10 {"ville" if granularite == "Aucun" else granularite.lower(
+            )}s avec le plus grand nombre de véhicules électriques",
+            labels={'Nom': f'{granularite}',
+                    'Nombre de véhicules': 'Nombre de véhicules électriques'},
+            # text='Nombre de véhicules'
+        )
+
+        # Mise à jour du style du graphique
+        fig_top.update_layout(
+            xaxis_title="Nombre de véhicules électriques",
+            yaxis_title=f"{"ville" if granularite ==
+                           "Aucun" else granularite.lower()}",
+            # Inverser l'ordre pour afficher les plus grands en haut
+            yaxis=dict(autorange="reversed"),
+            hovermode="y unified"
+        )
+
+        # Affichage du graphique
+        st.plotly_chart(fig_top)
+
     # ---- Analyse : Nombre de bornes de recharge ----
     with tab2:
         st.subheader(f"Analyse du nombre de bornes de recharge{title_suffix}")
@@ -143,6 +200,47 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             markers=True
         )
         st.plotly_chart(fig2)
+
+        # ---- Top 10 par granularité ----
+        st.subheader("Top 10 par granularité")
+
+        # Agrégation des données pour le Top 10 selon la granularité choisie
+        top_bornes_data = bornes.copy()
+        top_bornes_data["Nom"] = top_bornes_data["commune"]
+
+        if granularite == "Commune":
+            top_bornes_data = agg_bornes.groupby('commune', as_index=False)[
+                'nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["commune"]
+        elif granularite == "Région":
+            top_bornes_data = agg_bornes.groupby('nom_region', as_index=False)[
+                'nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["nom_region"]
+        elif granularite == "Département":
+            top_bornes_data = agg_bornes.groupby('nom_departement', as_index=False)[
+                'nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["nom_departement"]
+
+        # Tri et sélection du Top 10
+        top_bornes_data = top_bornes_data.sort_values(
+            by='nb_borne', ascending=False).head(10)
+
+        # Graphique interactif du Top 10
+        fig_top_bornes = px.bar(
+            top_bornes_data,
+            x='Nom',
+            y='nb_borne',
+            title=f"Top 10 des {
+                granularite.lower()}s avec le plus de bornes de recharge",
+            labels={'Nom': granularite,
+                    'Nombre de bornes': 'Nombre de bornes de recharge'},
+            # text='Nombre de bornes'
+        )
+        fig_top_bornes.update_traces(textposition='outside')
+        fig_top_bornes.update_layout(xaxis_tickangle=-45)
+
+        # Affichage du graphique
+        st.plotly_chart(fig_top_bornes)
 
     # ---- Analyses croisées ----
     with tab3:
