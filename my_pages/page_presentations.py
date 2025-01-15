@@ -211,7 +211,7 @@ def create_map_population(dataset, geojson_data, col_granu, col_year, info_carte
 
     return map
 
-def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+def show(carte_html2, carte_html, trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg):
     st.title("Page 1 : Présentation des données")
     st.write("Bienvenue sur la page de présentation des données.")
@@ -221,6 +221,9 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
         "Population",
         "Trafic"
     ])
+    nb_voiture_dep["code_dep"] = nb_voiture_dep["code_dep"].astype(str)
+    nb_voiture_dep["code_dep"] = nb_voiture_dep["code_dep"].str.zfill(2)
+
     with tab1:
         with st.container():
             # Utiliser des colonnes pour aligner les filtres
@@ -253,16 +256,14 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
                     key="slider_info_carte_vehicule"
                 )
         if granularity == "commune":
-            col_granu = "codgeo"
-            geojson_data = geojson_data_com
-            dataset = nb_voiture_commune
-            dataset = dataset[dataset["annee"] == selected_year]
-            dataset.drop(columns=["annee"], inplace=True)
-            dataset["ratio_elec_total"] = dataset["nb_vp_rechargeables_el"]	/ dataset["nb_vp"]
-            # Fait ca en pourcentage nb_voiture_commune_dep["ratio_elec_total"] avec 2 chiffres après la virgule
-            dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
-            dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
-
+            liste_dep = nb_voiture_dep["code_dep"].unique().tolist()
+            departement = st.selectbox("Sélectionnez un département :", liste_dep)
+            code = str(selected_year) + "_" + departement
+            year = str(selected_year)
+            code = f"carte_commune_{selected_year}_{departement}.html"
+            carte_html_choisi = carte_html[code]
+            st.title("Carte Interactive")
+            st.components.v1.html(carte_html_choisi, height=500, width=800)
 
         elif granularity == "région":
             col_granu = "code_region"
@@ -274,7 +275,8 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
             # Fait ca en pourcentage nb_voiture_commune_dep["ratio_elec_total"] avec 2 chiffres après la virgule
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
-
+            map = create_map(dataset, geojson_data, col_granu, info_carte)        
+            folium_static(map, width=800, height=600)
 
         else:
             col_granu = "code_dep"
@@ -286,8 +288,8 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
             # Fait ca en pourcentage nb_voiture_commune_dep["ratio_elec_total"] avec 2 chiffres après la virgule
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
-        map = create_map(dataset, geojson_data, col_granu, info_carte)        
-        folium_static(map, width=800, height=600)
+            map = create_map(dataset, geojson_data, col_granu, info_carte)        
+            folium_static(map, width=800, height=600)
     with tab2:
         bornes_com = bornes[["commune","code_insee","Annee","nb_borne_cumul"]]
         bornes_dep = bornes[["Departement_selon_insee","Annee","nom_departement","nb_borne_cumul"]]
@@ -376,8 +378,8 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
                 col_granu = "codgeo_insee"
                 geojson_data = geojson_data_com
                 dataset = population_com
-            elif granularity3 == "reg":
-                col_granu = "code_region"
+            elif granularity3 == "région":
+                col_granu = "reg"
                 geojson_data = geojson_data_reg
                 dataset = population_reg
             else:
@@ -386,9 +388,7 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
                 dataset = population_dep
 
 
-            
     
-
             # Créer la carte avec les bornes
             map = create_map_population(dataset, geojson_data, col_granu, selected_year3, info_carte="Population")
             folium_static(map, width=800, height=600)

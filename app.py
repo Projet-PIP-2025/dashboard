@@ -14,11 +14,13 @@ st.set_page_config(page_title="Dashboard : Voiture électrique",
 
 # Chargement des données
 
+import os
+import json
+import pandas as pd
 
 @st.cache_data
 def load_data():
     # Chargement des fichiers CSV
-
     nb_voitures = pd.read_csv("data/nb_voiture_annee_cdr.csv")
     nb_voiture_commune = pd.read_csv("data/nb_voiture_commune.csv")
     nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv")
@@ -27,30 +29,36 @@ def load_data():
     bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
     
     bornes = pd.read_csv("data/bornes_completes.csv")
-    bornes2 = pd.read_csv("data/Bornes_nettoye2.csv", delimiter = ";")
+    bornes2 = pd.read_csv("data/Bornes_nettoye2.csv", delimiter=";")
     population2 = pd.read_csv("data/population2.csv")
     trafic_dep = pd.read_csv("data/tmja_dep_df.csv")
     trafic_reg = pd.read_csv("data/tmja_reg.csv")
 
+    # Chargement des fichiers GeoJSON
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
-    
-    with open("data/france_departments.geojson", 'r') as f:
-        geojson_data_dep = json.load(f)
-    with open("data/carte_interactive_avec_bornes.html", "r"   ) as file:
-        carte_html = file.read()
-    with open("data/Carte_html/carte_commune_2023.html", "r"   ) as file:
-        carte_html_commune = file.read()
+
     with open("data/carte_tmja_troncons.html", "r"   ) as file:
         carte_html2 = file.read()
 
+    with open("data/france_departments.geojson", 'r') as f:
+        geojson_data_dep = json.load(f)
+    
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return carte_html_commune,carte_html2,carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    # Charger toutes les cartes HTML dans un dictionnaire
+    carte_html = {}
+    html_files = [f for f in os.listdir("data/Carte_html/") if f.endswith(".html")]
+    for html_file in html_files:
+        file_path = os.path.join("data/Carte_html/", html_file)
+        with open(file_path, "r") as file:
+            carte_html[html_file] = file.read()
 
+    return carte_html2, carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
-carte_html_commune,carte_html2,carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+# Charger les données
+carte_html2, carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -107,9 +115,9 @@ def main():
             * **Charly**
             """
         )
-        
+       
     elif selected_page == "Carte":
-        page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+        page_presentations.show(carte_html2, carte_html,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":
