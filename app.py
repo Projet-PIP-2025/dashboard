@@ -107,8 +107,7 @@ def main():
             * **Charly**
             """
         )
-        st.title("Carte Interactive")
-        st.components.v1.html(carte_html_commune, height=500, width=800)
+        
     elif selected_page == "Carte":
         page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg)

@@ -60,6 +60,7 @@ def create_map_tmja(tmja_data, geojson_data, col_granu, selected_year):
 
     return map
 
+
 def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
     # Initialisation de la carte centrée sur la France
     map = folium.Map(location=[46.603354, 1.8883344], zoom_start=6, tiles='CartoDB positron')
@@ -285,8 +286,7 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
             # Fait ca en pourcentage nb_voiture_commune_dep["ratio_elec_total"] avec 2 chiffres après la virgule
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
-
-        map = create_map(dataset, geojson_data, col_granu, info_carte)
+        map = create_map(dataset, geojson_data, col_granu, info_carte)        
         folium_static(map, width=800, height=600)
     with tab2:
         bornes_com = bornes[["commune","code_insee","Annee","nb_borne_cumul"]]
