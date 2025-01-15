@@ -27,7 +27,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # Filtre par année
     years = ["Toutes les années"] + \
         sorted(nb_voitures['annee'].unique())
-    # selected_year = st.sidebar.selectbox("Choisissez une année", options=years)
+    selected_year = st.sidebar.selectbox("Choisissez une année", options=years)
 
     # Niveau de granularité
     granularite = st.sidebar.selectbox("Choisissez le niveau de granularité", options=["Aucun", "Région", "Département", "Commune"])
