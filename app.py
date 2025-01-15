@@ -26,7 +26,8 @@ def load_data():
     bornes_vehicules_dep = pd.read_csv("data/croisement_donnee_borne_voiture_departement.csv", encoding="utf-8")
     bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
     
-    bornes = pd.read_csv("data/bornes_completes.csv")
+    bornes = pd.read_csv("data/bornes_completes.csv") # Données utilisées pour les statistiques
+    bornes_completes = pd.read_csv("data/bornes_completes2.csv") # Données utilisées pour Aménageurs & Opérateurs (statistiques)
     bornes2 = pd.read_csv("data/Bornes_nettoye2.csv" , delimiter = ";")
     bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";")
     pred_reg = pd.read_csv("data/Pred_Reg_tout.csv" , delimiter = ";")
@@ -47,10 +48,10 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes
 
 
-reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes = load_data()
 
 
 def main():
@@ -113,7 +114,7 @@ def main():
                                 geojson_data_com, geojson_data_dep, geojson_data_reg)
 
     elif selected_page == "Statistiques":
-        page_stat.show(nb_voitures, nb_voiture_commune, bornes, bornes_vehicules_dep, bornes_vehicules_reg)
+        page_stat.show(nb_voitures, bornes_completes, bornes, bornes_vehicules_dep, bornes_vehicules_reg)
 
     elif selected_page == "Prédictions":
         page_predictions.show(bornes_pred, pred_reg, pred_ve)
