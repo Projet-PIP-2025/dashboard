@@ -7,6 +7,9 @@ import plotly.graph_objects as go
 import geopandas as gpd
 import branca.colormap as cm
 import folium
+import geopandas as gpd
+import branca.colormap as cm
+import folium
 
 
 def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep):
@@ -18,6 +21,10 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         bornes_completes (pd.DataFrame): Données des bornes de recharge par Aménageurs & Opérateurs.
         bornes (pd.DataFrame): Données des bornes de recharge par commune, département et région.
     """
+
+    years = ["Toutes les années"] + \
+        sorted(nb_voitures['annee'].unique())
+
     st.title("Statistiques descriptives")
     # st.write("Bienvenue sur la page des statistiques descriptives.")
 

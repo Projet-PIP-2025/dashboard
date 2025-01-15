@@ -46,10 +46,33 @@ def load_data():
         carte_html2 = file.read()
 
     # -- Données geojson --
+    # bornes_sans_date =
+    with open("data/carte_interactive_avec_bornes.html", "r"   ) as file:
+        carte_html = file.read()
+    with open("data/Carte_html/carte_commune_2023.html", "r"   ) as file:
+        carte_html_commune = file.read()
+    with open("data/carte_tmja_troncons.html", "r"   ) as file:
+        carte_html2 = file.read()
+
+    # -- Données geojson --
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
     with open("data/france_departments.geojson", 'r') as f:
         geojson_data_dep = json.load(f)
+
+    # -- Page Stat --
+    with open("data/Carte_html/carte_vehicule_borne_reg.html", "r", encoding="utf-8") as file:
+        carte_vehicule_borne_reg = file.read()
+    with open("data/Carte_html/carte_vehicule_borne_dep.html", "r", encoding="utf-8") as file:
+        carte_vehicule_borne_dep = file.read()
+    with open("data/Carte_html/carte_tmja_reg.html", "r", encoding="utf-8") as file:
+        carte_tmja_reg = file.read()
+    with open("data/Carte_html/carte_tmja_dep.html", "r", encoding="utf-8") as file:
+        carte_tmja_dep = file.read()
+    with open("data/Carte_html/carte_bornes_tmja_reg.html", "r", encoding="utf-8") as file:
+        carte_bornes_tmja_reg = file.read()
+    with open("data/Carte_html/carte_bornes_tmja_dep.html", "r", encoding="utf-8") as file:
+        carte_bornes_tmja_dep = file.read()
 
     # -- Page Stat --
     with open("data/Carte_html/carte_vehicule_borne_reg.html", "r", encoding="utf-8") as file:
@@ -129,6 +152,8 @@ def main():
         )
 
     elif selected_page == "Carte":
+        page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+                                geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep)
         page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep)
 
