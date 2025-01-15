@@ -25,7 +25,6 @@ def load_data():
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv")
     bornes_vehicules_dep = pd.read_csv("data/croisement_donnee_borne_voiture_departement.csv", encoding="utf-8")
     bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
-    
     bornes = pd.read_csv("data/bornes_completes.csv")
     bornes2 = pd.read_csv("data/Bornes_nettoye2.csv" , delimiter = ";")
     bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";")
@@ -36,12 +35,7 @@ def load_data():
     trafic_reg = pd.read_csv("data/tmja_reg.csv")
     reco_borne_ve = pd.read_csv("data/tab_reco_borne_pour_ve.csv" , delimiter = ";")
 
-    # bornes_sans_date = 
-    with open("data/communes.geojson", 'r') as f:
-        geojson_data_com = json.load(f)
-    
-    with open("data/france_departments.geojson", 'r') as f:
-        geojson_data_dep = json.load(f)
+    # bornes_sans_date =
     with open("data/carte_interactive_avec_bornes.html", "r"   ) as file:
         carte_html = file.read()
     with open("data/Carte_html/carte_commune_2023.html", "r"   ) as file:
@@ -49,13 +43,33 @@ def load_data():
     with open("data/carte_tmja_troncons.html", "r"   ) as file:
         carte_html2 = file.read()
 
+    # -- Données geojson --
+    with open("data/communes.geojson", 'r') as f:
+        geojson_data_com = json.load(f)
+    with open("data/france_departments.geojson", 'r') as f:
+        geojson_data_dep = json.load(f)
+
+    # -- Page Stat --
+    with open("data/Carte_html/carte_vehicule_borne_reg.html", "r", encoding="utf-8") as file:
+        carte_vehicule_borne_reg = file.read()
+    with open("data/Carte_html/carte_vehicule_borne_dep.html", "r", encoding="utf-8") as file:
+        carte_vehicule_borne_dep = file.read()
+    with open("data/Carte_html/carte_tmja_reg.html", "r", encoding="utf-8") as file:
+        carte_tmja_reg = file.read()
+    with open("data/Carte_html/carte_tmja_dep.html", "r", encoding="utf-8") as file:
+        carte_tmja_dep = file.read()
+    with open("data/Carte_html/carte_bornes_tmja_reg.html", "r", encoding="utf-8") as file:
+        carte_bornes_tmja_reg = file.read()
+    with open("data/Carte_html/carte_bornes_tmja_dep.html", "r", encoding="utf-8") as file:
+        carte_bornes_tmja_dep = file.read()
+
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return carte_html_commune,carte_html2,carte_html,reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    return carte_html_commune,carte_html2,carte_html,reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep
 
 
-carte_html_commune,carte_html2,carte_html,reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+carte_html_commune,carte_html2,carte_html,reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep = load_data()
 
 
 def main():
@@ -112,13 +126,13 @@ def main():
             * **Charly**
             """
         )
-        
+
     elif selected_page == "Carte":
         page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
-                                geojson_data_com, geojson_data_dep, geojson_data_reg)
+                                geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep)
 
     elif selected_page == "Statistiques":
-        page_stat.show(nb_voitures, nb_voiture_commune, bornes, bornes_vehicules_dep, bornes_vehicules_reg)
+        page_stat.show(nb_voitures, bornes, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep)
 
     elif selected_page == "Prédictions":
         page_predictions.show(bornes_pred, pred_reg, pred_ve)
