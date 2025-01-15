@@ -37,21 +37,40 @@ def load_data():
     trafic_reg = pd.read_csv("data/tmja_reg.csv")
     reco_borne_ve = pd.read_csv("data/tab_reco_borne_pour_ve.csv" , delimiter = ";")
 
-    # bornes_sans_date = 
+    # bornes_sans_date =
+    with open("data/carte_interactive_avec_bornes.html", "r"   ) as file:
+        carte_html = file.read()
+    with open("data/Carte_html/carte_commune_2023.html", "r"   ) as file:
+        carte_html_commune = file.read()
+    with open("data/carte_tmja_troncons.html", "r"   ) as file:
+        carte_html2 = file.read()
+
+    # -- Données geojson --
     with open("data/communes.geojson", 'r') as f:
         geojson_data_com = json.load(f)
-    
     with open("data/france_departments.geojson", 'r') as f:
         geojson_data_dep = json.load(f)
-    
+
+    # -- Page Stat --
+    with open("data/Carte_html/carte_vehicule_borne_reg.html", "r", encoding="utf-8") as file:
+        carte_vehicule_borne_reg = file.read()
+    with open("data/Carte_html/carte_vehicule_borne_dep.html", "r", encoding="utf-8") as file:
+        carte_vehicule_borne_dep = file.read()
+    with open("data/Carte_html/carte_tmja_reg.html", "r", encoding="utf-8") as file:
+        carte_tmja_reg = file.read()
+    with open("data/Carte_html/carte_tmja_dep.html", "r", encoding="utf-8") as file:
+        carte_tmja_dep = file.read()
+    with open("data/Carte_html/carte_bornes_tmja_reg.html", "r", encoding="utf-8") as file:
+        carte_bornes_tmja_reg = file.read()
+    with open("data/Carte_html/carte_bornes_tmja_dep.html", "r", encoding="utf-8") as file:
+        carte_bornes_tmja_dep = file.read()
 
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes
+    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep
 
-
-reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes = load_data()
+reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep = load_data()
 
 
 def main():
@@ -110,11 +129,11 @@ def main():
         )
 
     elif selected_page == "Carte":
-        page_presentations.show(trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
-                                geojson_data_com, geojson_data_dep, geojson_data_reg)
+        page_presentations.show(carte_html2,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+                                geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep)
 
     elif selected_page == "Statistiques":
-        page_stat.show(nb_voitures, bornes_completes, bornes, bornes_vehicules_dep, bornes_vehicules_reg)
+        page_stat.show(nb_voitures, bornes_completes, bornes, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep)
 
     elif selected_page == "Prédictions":
         page_predictions.show(bornes_pred, pred_reg, pred_ve)
