@@ -96,8 +96,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
     # ---- Analyse : Nombre de véhicules électriques ----
     with tab1:
-        st.subheader(f"Analyse du nombre de véhicules électriques{
-                     title_suffix}")
+        st.subheader(f"Analyse du nombre de véhicules électriques{title_suffix}")
         agg_vehicules = filtered_data.groupby(
             'annee')['nb_vp_rechargeables_el'].sum().reset_index()
 
@@ -106,8 +105,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             agg_vehicules,
             x='annee',
             y='nb_vp_rechargeables_el',
-            title=f"Évolution du nombre de véhicules électriques{
-                title_suffix}",
+            title=f"Évolution du nombre de véhicules électriques{title_suffix}",
             labels={'annee': 'Année',
                     'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
             text='nb_vp_rechargeables_el'
@@ -152,8 +150,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             x='nb_vp_rechargeables_el',
             y='Nom',
             orientation='h',
-            title=f"Top 10 {"ville" if granularite == "Aucun" else granularite.lower(
-            )}s avec le plus grand nombre de véhicules électriques",
+            title=f"Top 10 {'ville' if granularite == 'Aucun' else granularite.lower()}s avec le plus grand nombre de véhicules électriques",
             labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}',
                     'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
             # text='Nombre de véhicules'
@@ -178,8 +175,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             agg_ratio,
             x='annee',
             y='ratio_ve',
-            title=f"Évolution du ratio véhicules électriques / total{
-                title_suffix}",
+            title=f"Évolution du ratio véhicules électriques / total{title_suffix}",
             labels={
                 'annee': 'Année',
                 'ratio_ve': 'Ratio véhicules électriques / total'
@@ -255,8 +251,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
             top_bornes_data2,
             x='nb_borne',
             y='Nom',
-            title=f"Top 10 des {"ville" if granularite == "Aucun" else granularite.lower(
-            )}s avec le plus de bornes de recharge",
+            title=f"Top 10 des {'ville' if granularite == 'Aucun' else granularite.lower()}s avec le plus de bornes de recharge",
             labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}',
                     'nb_borne': 'Nombre de bornes de recharge'},
         )
@@ -327,8 +322,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
 
             # Configuration des axes Y
             fig3.update_layout(
-                title=f"Évolution des bornes et véhicules électriques par année{
-                    title_suffix}",
+                title=f"Évolution des bornes et véhicules électriques par année{title_suffix}",
                 xaxis=dict(title='Année', tickfont=dict(size=16)),
                 yaxis=dict(
                     title='Nombre de bornes',
@@ -353,8 +347,7 @@ def show(voiture_commune, voiture_region, bornes, bornes_vehicules_dep, bornes_v
                 evolution_data,
                 x='annee',
                 y='ratio_vehicles_per_borne',
-                title=f"Ratio du nombre de véhicules par borne par année{
-                    title_suffix}",
+                title=f"Ratio du nombre de véhicules par borne par année{title_suffix}",
                 labels={
                     'annee': 'Année',
                     'ratio_vehicles_per_borne': 'Ratio véhicules/bornes'
