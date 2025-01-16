@@ -259,8 +259,7 @@ def show(nb_voitures, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes
 
         # Agrégation des données pour le Top 10 selon la granularité choisie
         top_bornes_data = bornes.copy()
-        top_bornes_data = top_bornes_data.groupby('commune', as_index=False)[
-            'nb_borne'].sum()
+        top_bornes_data = top_bornes_data.groupby('commune', as_index=False)['nb_borne'].sum()
         top_bornes_data["Nom"] = top_bornes_data["commune"]
 
         if granularite == "Commune":
@@ -325,6 +324,89 @@ def show(nb_voitures, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes
             elif granularity_tab3_1 == 'département':
                 st.subheader("Ratio du nombre de véhicules électriques par bornes selon le département")
                 st.components.v1.html(carte_vehicules_bornes_dep, height=500, width=800)
+
+
+            header = st.container()
+            header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+
+            ### Custom CSS for the sticky header
+            st.markdown(
+                """
+            <style>
+                div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
+                    position: sticky;
+                    top: 2.875rem;
+                    background-color: white;
+                    z-index: 999;
+                }
+                .fixed-header {
+                    border-bottom: 1px solid black;
+                }
+            </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            with header:
+                # Utiliser des colonnes pour aligner les filtres
+                col1, col2, col3 = st.columns([1, 1, 2])  # Largeurs ajustables
+
+                with col1:
+                    selected_year = st.selectbox(
+                        "Choisissez une année",
+                        options=years,
+                        key="slider_year_tab3"
+                    )
+                with col2:
+                    granularite = st.selectbox(
+                        "Choisissez le niveau de granularité",
+                        options=["Aucun", "Région", "Département", "Commune"],
+                        key="slider_granularity_tab3"
+                    )
+                with col3:
+                    if granularite == "Région":
+                        options = ["Toutes les régions"] + \
+                            sorted(nb_voitures['nom_region'].unique())
+                        selected_option = st.selectbox(
+                            "Sélectionnez une région", options=options, key="slider_option1_tab3")
+                    elif granularite == "Département":
+                        options = ["Tous les départements"] + \
+                            sorted(nb_voitures['nom_departement'].unique())
+                        selected_option = st.selectbox(
+                            "Sélectionnez un département", options=options, key="slider_option2_tab3")
+                    elif granularite == "Commune":
+                        options = ["Toutes les communes"] + \
+                            sorted(nb_voitures['libgeo'].unique())
+                        selected_option = st.selectbox(
+                            "Sélectionnez une commune", options=options, key="slider_option3_tab3")
+                    else:
+                        selected_option = "Aucun"
+
+            # ---- Filtrage des données ----
+            filtered_data = nb_voitures.copy()
+
+            # Appliquer le filtre par année
+            if selected_year != "Toutes les années":
+                filtered_data = filtered_data[filtered_data['annee'] == selected_year]
+
+            # Appliquer le filtre par région, département ou commune
+            if granularite == "Région" and selected_option != "Toutes les régions":
+                filtered_data = filtered_data[filtered_data['nom_region']
+                                            == selected_option]
+            elif granularite == "Département" and selected_option != "Tous les départements":
+                filtered_data = filtered_data[filtered_data['nom_departement']
+                                            == selected_option]
+            elif granularite == "Commune" and selected_option != "Toutes les communes":
+                filtered_data = filtered_data[filtered_data['libgeo']
+                                            == selected_option]
+
+            # Déterminer le suffixe du titre dynamique
+            title_suffix = ""
+            if selected_option not in ["Aucun", "Toutes les régions", "Tous les départements", "Toutes les communes"]:
+                title_suffix = f" - {selected_option}"
+            if selected_year != "Toutes les années":
+                title_suffix += f" (Année : {selected_year})"
+
 
             # Préparation des données agrégées pour les bornes
             bornes["annee"] = bornes["Annee"]
