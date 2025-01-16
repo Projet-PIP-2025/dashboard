@@ -265,8 +265,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             y='Nom',
             orientation='h',
             title=f"Top 10 {'ville' if granularite == 'Aucun' else granularite.lower()}s avec le plus grand nombre de véhicules électriques",
-            labels={'Nom': f"{'ville' if granularite == 'Aucun' else granularite.lower()}", 'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
-            # text='Nombre de véhicules'
+            labels={'Nom': f"{'ville' if granularite == 'Aucun' else granularite.lower()}", 'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},           # text='Nombre de véhicules'
         )
 
         # Affichage du graphique
@@ -380,8 +379,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             top_bornes_data2,
             x='nb_borne',
             y='Nom',
-            title=f"Top 10 des {"ville" if granularite == "Aucun" else granularite.lower()}s avec le plus de bornes de recharge",
-            labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}', 'nb_borne': 'Nombre de bornes de recharge'},
+            title=f"Top 10 des {'ville' if granularite == 'Aucun' else granularite.lower()}s avec le plus de bornes de recharge",
+            labels={'Nom': f"{'ville' if granularite == 'Aucun' else granularite.lower()}", 'nb_borne': 'Nombre de bornes de recharge'},
         )
         fig_top_bornes.update_traces(textposition='outside')
         fig_top_bornes.update_layout(xaxis_tickangle=-45)
