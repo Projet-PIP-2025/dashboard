@@ -18,7 +18,7 @@ import os
 import json
 import pandas as pd
 
-@st.cache_datagi
+@st.cache_data
 def load_data():
     # Chargement des fichiers CSV
     nb_voitures = pd.read_csv("data/nb_voiture_annee_cdr.csv")
