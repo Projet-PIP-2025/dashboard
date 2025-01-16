@@ -55,10 +55,27 @@ def load_data():
         with open(file_path, "r") as file:
             carte_html[html_file] = file.read()
 
-    return carte_html2, carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
+    carte_borne_pred = {}
+    html_files = [f for f in os.listdir("data/Carte_borne_pred/") if f.endswith(".html")]
+    for html_file in html_files:
+        file_path = os.path.join("data/Carte_borne_pred/", html_file)
+        with open(file_path, "r") as file:
+            carte_borne_pred[html_file] = file.read()
+
+
+    carte_bornes_axes = {}
+    html_files = [f for f in os.listdir("data/cartes_bornes_axes/") if f.endswith(".html")]
+    for html_file in html_files:
+        file_path = os.path.join("data/cartes_bornes_axes/", html_file)
+        with open(file_path, "r") as file:
+            carte_bornes_axes[html_file] = file.read()
+
+
+
+    return carte_bornes_axes, carte_borne_pred, carte_html2, carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures
 
 # Charger les données
-carte_html2, carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
+carte_bornes_axes, carte_borne_pred, carte_html2, carte_html, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures = load_data()
 
 
 def main():
@@ -127,7 +144,7 @@ def main():
         page_predictions.show(bornes2)
 
     elif selected_page == "Recommandations":
-        page_recommandations.show()
+        page_recommandations.show(carte_borne_pred,carte_bornes_axes)
 
 
 if __name__ == "__main__":
