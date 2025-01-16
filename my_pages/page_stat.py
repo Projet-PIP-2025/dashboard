@@ -9,7 +9,7 @@ import branca.colormap as cm
 import folium
 
 
-def show(nb_voitures, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep):
+def show(nb_voitures, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee):
     """
     Affiche les statistiques descriptives avec filtres intégrés.
 
@@ -538,3 +538,30 @@ def show(nb_voitures, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes
             elif granularity_tab3_2 == 'département':
                 st.subheader("Ratio du nombre de bornes de recharge par TMJA selon le département")
                 st.components.v1.html(carte_bornes_tmja_dep, height=500, width=800)
+
+            fig_trafic = go.Figure()
+
+            fig_trafic.add_trace(go.Scatter(
+                x=bornes_tmja_par_annee['annee'],
+                y=bornes_tmja_par_annee['tmja_moyen'],
+                mode='lines+markers',
+                line=dict(color='blue', dash='solid'),
+                marker=dict(symbol='circle', size=8),
+                name='TMJA'
+            ))
+
+            fig_trafic.update_layout(
+                title="TMJA par année",
+                xaxis_title="Année",
+                yaxis_title="TMJA",
+                template="plotly_white",
+                showlegend=True,
+                title_font=dict(size=16),
+                xaxis=dict(title_font=dict(size=12)),
+                yaxis=dict(title_font=dict(size=12)),
+            )
+
+            fig_trafic.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(128, 128, 128, 0.3)')
+            fig_trafic.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(128, 128, 128, 0.3)')
+
+            st.plotly_chart(fig_trafic)
