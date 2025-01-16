@@ -54,6 +54,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # ---- Filtrage des données ----
     filtered_data = nb_voitures.copy()
     filtered_data_bornes = bornes_completes.copy()
+    filtered_data_bornes_annee = bornes.copy()
 
     # Appliquer le filtre par année
     if selected_year != "Toutes les années":
@@ -75,7 +76,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # Véhicules
         filtered_data = filtered_data[filtered_data['libgeo'] == selected_option]
         # Bornes de recharge
-        filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["libgeo"] == selected_option]
+        filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["commune"] == selected_option]
 
     # Déterminer le suffixe du titre dynamique
     title_suffix = ""
@@ -87,29 +88,47 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         title_suffix += f" (Année : {selected_year})"
 
     # Calcul des valeurs globales
-    voitures = filtered_data.groupby('annee')['nb_vp_rechargeables_el'].sum().reset_index()
+    voitures = filtered_data.groupby('annee', as_index=False)['nb_vp_rechargeables_el'].sum()
     total_vehicles = voitures['nb_vp_rechargeables_el'].max()  # Nombre total de véhicules électriques
-    bornes_annee = bornes.groupby(["Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
+    bornes_annee = filtered_data_bornes_annee.groupby(["Annee", "nom_region", "nom_departement", "commune"], as_index=False).agg({'nb_borne_cumul': 'sum'})
+
+    # commune
+    group_col = {"Région": ["nom_region", "Toutes les régions"],
+                "Département": ["nom_departement", "Tous les départements"],
+                "Commune" : ["commune", "Toutes les communes"]}.get(granularite)
 
     if selected_year == "Toutes les années":
-        if granularite == "Aucun":
-            total_bornes = bornes_annee['nb_borne_cumul'].max()
-        elif granularite == "Région":
-            total_bornes = bornes_annee[bornes_annee["nom_region"] == selected_option]['nb_borne_cumul'].max()
-        elif granularite == "Département":
-            total_bornes = bornes_annee[bornes_annee["nom_departement"] == selected_option]['nb_borne_cumul'].max()
+        if group_col and selected_option != group_col[1]:
+            total_bornes = bornes_annee.groupby(group_col[0], as_index=False).agg({'nb_borne_cumul': 'sum'})
+            total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option, 'nb_borne_cumul'].max()
+        else:
+            total_bornes = bornes_annee.groupby("Annee", as_index=False).agg({'nb_borne_cumul': 'sum'})
+            total_bornes = total_bornes['nb_borne_cumul'].max()
     else:
-        if granularite == "Aucun":
-            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
-        elif granularite == "Région":
-            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
-            total_bornes = total_bornes[total_bornes["nom_region"] == selected_option]['nb_borne_cumul'].max()
-        elif granularite == "Département":
-            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
-            total_bornes = total_bornes[total_bornes["nom_departement"] == selected_option]['nb_borne_cumul'].max()
+        if group_col and selected_option != group_col[1]:
 
+            total_bornes = bornes_annee.groupby(["Annee", group_col[0]], as_index=False).agg({'nb_borne_cumul': 'sum'})
 
-    ratio_vehicles_per_borne = total_vehicles / total_bornes  # Ratio véhicules par borne
+            st.write(total_bornes)
+
+            total_bornes = total_bornes[total_bornes["Annee"] == selected_year][[group_col[0], 'nb_borne_cumul']]
+
+            st.write(total_bornes)
+            total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option, 'nb_borne_cumul'].max()
+
+            st.write(total_bornes)
+        else:
+            total_bornes = bornes_annee.groupby(["Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
+            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
+
+    # Ratio véhicules par borne
+    import math
+
+    if not isinstance(total_bornes, (float, int)) or math.isnan(total_bornes):
+        total_bornes = 0
+        ratio_vehicles_per_borne = 0
+    else:
+        ratio_vehicles_per_borne = total_vehicles / total_bornes
 
     # Affichage en trois colonnes
     col1.markdown(f"<h5 style='font-weight: bold;'>Véhicules électriques</h5>"
@@ -117,7 +136,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
                 f"<p style='font-size: 12px; color: blue;'>{title_suffix}</p>", unsafe_allow_html=True)
 
     col2.markdown(f"<h5 style='font-weight: bold;'>Bornes de recharge</h5>"
-                f"<p style='font-size: 30px;'>{total_bornes:,}".replace(",", " ") + "</p>"
+                f"<p style='font-size: 30px;'>{int(total_bornes):,}".replace(",", " ") + "</p>"
                 f"<p style='font-size: 12px; color: blue;'>{title_suffix}</p>", unsafe_allow_html=True)
 
     col3.markdown(f"<h5 style='font-weight: bold;'>Véhicules par borne</h5>"
@@ -305,7 +324,6 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # ---- Analyse : Nombre de bornes de recharge ----
     with tab2:
         st.subheader(f"Analyse du nombre de bornes de recharge{title_suffix}")
-        agg_bornes = bornes.copy()
 
         header = st.container()
         header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
@@ -365,25 +383,31 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # Top 10 par niveau de granularité des bornes de recharge
         top_bornes_data = bornes.copy()
         filtered_data_bornes = bornes_completes.copy()
+        agg_bornes = bornes.copy()
 
-        # Filtrer les bornes de recharge par année
         if selected_year != "Toutes les années":
             agg_bornes = agg_bornes[agg_bornes['Annee'] == selected_year]
-            top_bornes_data = top_bornes_data[top_bornes_data['Annee'] == selected_year]
             filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year]
-
-        if granularite == "Commune":
-            top_bornes_data = bornes.groupby('commune', as_index=False)['nb_borne'].sum()
-            top_bornes_data["Nom"] = top_bornes_data["commune"]
+        if granularite == "Région" and selected_option != "Toutes les régions":
+            filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_region"] == selected_option]
+        elif granularite == "Département" and selected_option != "Tous les départements":
+            filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_departement"] == selected_option]
+        elif granularite == "Commune" and selected_option != "Toutes les communes":
             filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["libgeo"] == selected_option]
-        elif granularite == "Région":
+
+        if selected_year != "Toutes les années":
+            top_bornes_data = top_bornes_data[top_bornes_data['Annee'] == selected_year]
+
+        # Appliquer le filtre par région, département ou commune
+        if granularite == "Région":
             top_bornes_data = bornes.groupby('nom_region', as_index=False)['nb_borne'].sum()
             top_bornes_data["Nom"] = top_bornes_data["nom_region"]
-            filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_region"] == selected_option]
         elif granularite == "Département":
             top_bornes_data = bornes.groupby('nom_departement', as_index=False)['nb_borne'].sum()
             top_bornes_data["Nom"] = top_bornes_data["nom_departement"]
-            filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_departement"] == selected_option]
+        elif granularite == "Commune":
+            top_bornes_data = bornes.groupby('commune', as_index=False)['nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["commune"]
         else:
             top_bornes_data = top_bornes_data.groupby('commune', as_index=False)['nb_borne'].sum()
             top_bornes_data["Nom"] = top_bornes_data["commune"]
@@ -431,7 +455,6 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
 
         st.subheader("Aménageurs & Opérateurs")
         st.write("")
-
 
         # ---- 1. Évolution du nombre d'Aménageurs et d'Opérateurs ----
         evolution_am_op = (
