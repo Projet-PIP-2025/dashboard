@@ -66,28 +66,12 @@ def load_data():
     with open("data/Carte_html/carte_bornes_tmja_dep.html", "r", encoding="utf-8") as file:
         carte_bornes_tmja_dep = file.read()
 
-    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep, bornes_tmja_par_annee
-    # -- Page Stat --
-    with open("data/Carte_html/carte_vehicule_borne_reg.html", "r", encoding="utf-8") as file:
-        carte_vehicule_borne_reg = file.read()
-    with open("data/Carte_html/carte_vehicule_borne_dep.html", "r", encoding="utf-8") as file:
-        carte_vehicule_borne_dep = file.read()
-    with open("data/Carte_html/carte_tmja_reg.html", "r", encoding="utf-8") as file:
-        carte_tmja_reg = file.read()
-    with open("data/Carte_html/carte_tmja_dep.html", "r", encoding="utf-8") as file:
-        carte_tmja_dep = file.read()
-    with open("data/Carte_html/carte_bornes_tmja_reg.html", "r", encoding="utf-8") as file:
-        carte_bornes_tmja_reg = file.read()
-    with open("data/Carte_html/carte_bornes_tmja_dep.html", "r", encoding="utf-8") as file:
-        carte_bornes_tmja_dep = file.read()
-
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
     return reco_borne_ve,pred_ve, pred_reg, bornes_pred, trafic_reg, trafic_dep, population2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep
 
 reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee = load_data()
-reco_borne_ve,pred_ve, pred_reg, bornes_pred, trafic_reg, trafic_dep, population2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep = load_data()
 
 
 def main():
