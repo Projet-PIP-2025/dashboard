@@ -156,7 +156,7 @@ def create_map_population(dataset, geojson_data, col_granu, col_year, info_carte
 
     return map
 
-def show(carte_html2,carte_html,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep):
     st.title("Page 1 : Présentation des données")
     st.write("Bienvenue sur la page de présentation des données.")

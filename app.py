@@ -153,7 +153,7 @@ def main():
         
     elif selected_page == "Carte":
         page_presentations.show(carte_html2,carte_html,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
-                                geojson_data_com, geojson_data_dep, geojson_data_reg)
+                                geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep)
 
     elif selected_page == "Statistiques":
         page_stat.show(nb_voitures, bornes_completes, bornes, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee)
