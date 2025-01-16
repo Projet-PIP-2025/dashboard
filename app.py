@@ -28,7 +28,6 @@ def load_data():
     
     bornes = pd.read_csv("data/bornes_completes.csv") # Données utilisées pour les statistiques
     bornes_completes = pd.read_csv("data/bornes_completes2.csv") # Données utilisées pour Aménageurs & Opérateurs (statistiques)
-    bornes2 = pd.read_csv("data/Bornes_nettoye2.csv" , delimiter = ";")
     bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";")
     pred_reg = pd.read_csv("data/Pred_Reg_tout.csv" , delimiter = ";")
     pred_ve = pd.read_csv("data/Pred_ve_tout.csv" , delimiter = ";")
@@ -91,9 +90,9 @@ def load_data():
     with open("data/regions.geojson", 'r') as f:
         geojson_data_reg = json.load(f)
 
-    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep
+    return reco_borne_ve,pred_ve, pred_reg, bornes_pred, trafic_reg, trafic_dep, population2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep
 
-reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep = load_data()
+reco_borne_ve,pred_ve, pred_reg, bornes_pred, trafic_reg, trafic_dep, population2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep = load_data()
 
 
 def main():
@@ -140,14 +139,14 @@ def main():
         st.subheader("Réalisé par :")
         st.markdown(
             """
-            * **Thomas**
-            * **Koudous**
-            * **Raïssa**
-            * **Xavier**
-            * **Antoine**
-            * **Noé**
-            * **Paul**
-            * **Charly**
+            * **CHAUFOUREAU Thomas**
+            * **AGOSSOU Koudous**
+            * **TCHIBOZO HOUESSOU Raïssa**
+            * **PUJOL Xavier**
+            * **CHEVALLIER Antoine**
+            * **BRISON Noé**
+            * **SAINT MARC Paul**
+            * **MARTY Charly**
             """
         )
 

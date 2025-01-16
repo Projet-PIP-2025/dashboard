@@ -249,7 +249,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             x='annee',
             y='nb_vp_rechargeables_el',
             title=f"Évolution du nombre de véhicules électriques{title_suffix}",
-            labels={'annee': 'Année', 'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'}
+            labels={'annee': 'Année', 'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
+            text='nb_vp_rechargeables_el'
         )
         fig1.update_traces(textposition='outside')
         fig1.update_xaxes(tickformat="%Y", tickmode="linear", dtick="M12")
@@ -270,7 +271,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             orientation='h',
             title=f"Top 10 {"ville" if granularite == "Aucun" else granularite.lower()}s avec le plus grand nombre de véhicules électriques",
             labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}', 'nb_vp_rechargeables_el': 'Nombre de véhicules électriques'},
-            # text='Nombre de véhicules'
+            text='nb_vp_rechargeables_el'
         )
 
         # Affichage du graphique
