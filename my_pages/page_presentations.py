@@ -1,12 +1,9 @@
 import streamlit as st
 import folium
 from streamlit_folium import folium_static
-import json
-import numpy as np
 import plotly.express as px
 from folium.plugins import HeatMap
 from streamlit_folium import folium_static
-from folium import Choropleth, LayerControl, GeoJsonTooltip
 
 
 def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
@@ -356,4 +353,3 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
         elif granularity4 == "département":
             st.subheader("TMJA moyen selon la région")
             st.components.v1.html(carte_tmja_dep, height=500, width=800)
-
