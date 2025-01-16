@@ -6,13 +6,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import geopandas as gpd
 import branca.colormap as cm
-import folium
-import geopandas as gpd
-import branca.colormap as cm
-import folium
 
 
-def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep):
+def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee):
     """
     Affiche les statistiques descriptives avec filtres intégrés.
 
@@ -58,45 +54,45 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # ---- Filtrage des données ----
     filtered_data = nb_voitures.copy()
     filtered_data_bornes = bornes_completes.copy()
-        
+
     # Appliquer le filtre par année
     if selected_year != "Toutes les années":
         filtered_data = filtered_data[filtered_data['annee'] == selected_year] # Données filtrées pour véhicules
         filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year]
-    
+
     # Appliquer le filtre par région, département ou commune
     if granularite == "Région" and selected_option != "Toutes les régions":
         # Véhicules
         filtered_data = filtered_data[filtered_data['nom_region'] == selected_option]
-        
+
         # Bornes de recharge
         filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_region"] == selected_option]
-        
+
     elif granularite == "Département" and selected_option != "Tous les départements":
         # Véhicules
         filtered_data = filtered_data[filtered_data['nom_departement'] == selected_option]
-        
+
         # Bornes de recharge
         filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_departement"] == selected_option]
-        
+
     elif granularite == "Commune" and selected_option != "Toutes les communes":
         # Véhicules
         filtered_data = filtered_data[filtered_data['libgeo'] == selected_option]
-        
+
         # Bornes de recharge
         filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["libgeo"] == selected_option]
 
-    
+
     top_data = nb_voitures.copy() # Top 10 par niveau de granularité de véhicules
     top_bornes_data = bornes.copy() # Top 10 par niveau de granularité des bornes de recharge
-        
+
     # derniere_annee = top_data['annee'].max()
     if selected_year != "Toutes les années":
         derniere_annee = selected_year
         top_bornes_data = top_bornes_data[top_bornes_data['Annee'] == selected_year]
     else:
         derniere_annee = top_data['annee'].max()
-    
+
     # Filtrer les données pour ne conserver que celles de la dernière année
     top_data = top_data[top_data['annee'] == derniere_annee]
 
@@ -105,7 +101,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # Véhicules
         top_data = top_data.groupby('nom_region', as_index=False)['nb_vp_rechargeables_el'].sum()
         top_data["Nom"] = top_data["nom_region"]
-        
+
         # Bornes de recharge
         top_bornes_data = bornes.groupby('nom_region', as_index=False)['nb_borne'].sum()
         top_bornes_data["Nom"] = top_bornes_data["nom_region"]
@@ -113,7 +109,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # Véhicules
         top_data = top_data.groupby('nom_departement', as_index=False)['nb_vp_rechargeables_el'].sum()
         top_data["Nom"] = top_data["nom_departement"]
-        
+
         # Bornes de recharge
         top_bornes_data = bornes.groupby('nom_departement', as_index=False)['nb_borne'].sum()
         top_bornes_data["Nom"] = top_bornes_data["nom_departement"]
@@ -121,7 +117,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # Véhicules
         top_data = top_data.groupby('libgeo', as_index=False)['nb_vp_rechargeables_el'].sum()
         top_data["Nom"] = top_data["libgeo"]
-        
+
         # Bornes de recharge
         top_bornes_data = bornes.groupby('commune', as_index=False)['nb_borne'].sum()
         top_bornes_data["Nom"] = top_bornes_data["commune"]
@@ -129,12 +125,12 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # Véhicules
         top_data = top_data.groupby('libgeo', as_index=False)['nb_vp_rechargeables_el'].sum()
         top_data["Nom"] = top_data["libgeo"]
-        
+
         # Bornes de recharge
         top_bornes_data = top_bornes_data.groupby('commune', as_index=False)['nb_borne'].sum()
         top_bornes_data["Nom"] = top_bornes_data["commune"]
-                
-       
+
+
     # Déterminer le suffixe du titre dynamique
     title_suffix = ""
     if selected_option not in ["Aucun", "Toutes les régions", "Tous les départements", "Toutes les communes"]:
@@ -143,7 +139,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         title_suffix = f" - France"
     if selected_year != "Toutes les années":
         title_suffix += f" (Année : {selected_year})"
-        
+
     # Calcul des valeurs globales
     voitures = filtered_data.groupby('annee')['nb_vp_rechargeables_el'].sum().reset_index()
     total_vehicles = voitures['nb_vp_rechargeables_el'].max()  # Nombre total de véhicules électriques
@@ -165,8 +161,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     col3.markdown(f"<h5 style='font-weight: bold;'>Véhicules par borne</h5>"
                 f"<p style='font-size: 30px;'>{ratio_vehicles_per_borne:.2f}</p>"
                 f"<p style='font-size: 12px; color: blue;'>{title_suffix}</p>", unsafe_allow_html=True)
-    
- 
+
+
     # ---- Onglets pour navigation ----
     tab1, tab2, tab3 = st.tabs([
         "Véhicules électriques",
@@ -359,6 +355,24 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         # ---- Top 10 par granularité ----
         st.subheader("Top 10 par granularité")
 
+        # Agrégation des données pour le Top 10 selon la granularité choisie
+        top_bornes_data = bornes.copy()
+        top_bornes_data = top_bornes_data.groupby('commune', as_index=False)['nb_borne'].sum()
+        top_bornes_data["Nom"] = top_bornes_data["commune"]
+
+        if granularite == "Commune":
+            top_bornes_data = top_bornes_data.groupby('commune', as_index=False)[
+                'nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["commune"]
+        elif granularite == "Région":
+            top_bornes_data = top_bornes_data.groupby('nom_region', as_index=False)[
+                'nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["nom_region"]
+        elif granularite == "Département":
+            top_bornes_data = top_bornes_data.groupby('nom_departement', as_index=False)[
+                'nb_borne'].sum()
+            top_bornes_data["Nom"] = top_bornes_data["nom_departement"]
+
         # Tri et sélection du Top 10
         top_bornes_data2 = top_bornes_data.sort_values(by='nb_borne', ascending=False).head(10)
 
@@ -367,19 +381,19 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             top_bornes_data2,
             x='nb_borne',
             y='Nom',
-            title=f"Top 10 des {"ville" if granularite == "Aucun" else granularite.lower()}s avec le plus de bornes de recharge",
-            labels={'Nom': f'{"ville" if granularite == "Aucun" else granularite.lower()}', 'nb_borne': 'Nombre de bornes de recharge'},
+            title=f"Top 10 des {'ville' if granularite == 'Aucun' else granularite.lower()}s avec le plus de bornes de recharge",
+            labels={'Nom': f"{'ville' if granularite == 'Aucun' else granularite.lower()}", 'nb_borne': 'Nombre de bornes de recharge'},
         )
         fig_top_bornes.update_traces(textposition='outside')
         fig_top_bornes.update_layout(xaxis_tickangle=-45)
 
         # Affichage du graphique
         st.plotly_chart(fig_top_bornes)
-        
+
         st.subheader("Aménageurs & Opérateurs")
         st.write("")
-        
-        
+
+
         # ---- 1. Évolution du nombre d'Aménageurs et d'Opérateurs ----
         evolution_am_op = (
             filtered_data_bornes.groupby(['Annee'])
@@ -447,8 +461,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             )
             fig5.update_traces(textposition='outside')
             st.plotly_chart(fig5)
-        
-        
+
+
 
     # ---- Analyses croisées ----
     with tab3:
@@ -480,6 +494,89 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             elif granularity_tab3_1 == 'département':
                 st.subheader("Ratio du nombre de véhicules électriques par bornes selon le département")
                 st.components.v1.html(carte_vehicules_bornes_dep, height=500, width=800)
+
+
+            header = st.container()
+            header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+
+            ### Custom CSS for the sticky header
+            st.markdown(
+                """
+            <style>
+                div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
+                    position: sticky;
+                    top: 2.875rem;
+                    background-color: white;
+                    z-index: 999;
+                }
+                .fixed-header {
+                    border-bottom: 1px solid black;
+                }
+            </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            with header:
+                # Utiliser des colonnes pour aligner les filtres
+                col1, col2, col3 = st.columns([1, 1, 2])  # Largeurs ajustables
+
+                with col1:
+                    selected_year = st.selectbox(
+                        "Choisissez une année",
+                        options=years,
+                        key="slider_year_tab3"
+                    )
+                with col2:
+                    granularite = st.selectbox(
+                        "Choisissez le niveau de granularité",
+                        options=["Aucun", "Région", "Département", "Commune"],
+                        key="slider_granularity_tab3"
+                    )
+                with col3:
+                    if granularite == "Région":
+                        options = ["Toutes les régions"] + \
+                            sorted(nb_voitures['nom_region'].unique())
+                        selected_option = st.selectbox(
+                            "Sélectionnez une région", options=options, key="slider_option1_tab3")
+                    elif granularite == "Département":
+                        options = ["Tous les départements"] + \
+                            sorted(nb_voitures['nom_departement'].unique())
+                        selected_option = st.selectbox(
+                            "Sélectionnez un département", options=options, key="slider_option2_tab3")
+                    elif granularite == "Commune":
+                        options = ["Toutes les communes"] + \
+                            sorted(nb_voitures['libgeo'].unique())
+                        selected_option = st.selectbox(
+                            "Sélectionnez une commune", options=options, key="slider_option3_tab3")
+                    else:
+                        selected_option = "Aucun"
+
+            # ---- Filtrage des données ----
+            filtered_data = nb_voitures.copy()
+
+            # Appliquer le filtre par année
+            if selected_year != "Toutes les années":
+                filtered_data = filtered_data[filtered_data['annee'] == selected_year]
+
+            # Appliquer le filtre par région, département ou commune
+            if granularite == "Région" and selected_option != "Toutes les régions":
+                filtered_data = filtered_data[filtered_data['nom_region']
+                                            == selected_option]
+            elif granularite == "Département" and selected_option != "Tous les départements":
+                filtered_data = filtered_data[filtered_data['nom_departement']
+                                            == selected_option]
+            elif granularite == "Commune" and selected_option != "Toutes les communes":
+                filtered_data = filtered_data[filtered_data['libgeo']
+                                            == selected_option]
+
+            # Déterminer le suffixe du titre dynamique
+            title_suffix = ""
+            if selected_option not in ["Aucun", "Toutes les régions", "Tous les départements", "Toutes les communes"]:
+                title_suffix = f" - {selected_option}"
+            if selected_year != "Toutes les années":
+                title_suffix += f" (Année : {selected_year})"
+
 
             # Préparation des données agrégées pour les bornes
             bornes["annee"] = bornes["Annee"]
@@ -611,3 +708,30 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             elif granularity_tab3_2 == 'département':
                 st.subheader("Ratio du nombre de bornes de recharge par TMJA selon le département")
                 st.components.v1.html(carte_bornes_tmja_dep, height=500, width=800)
+
+            fig_trafic = go.Figure()
+
+            fig_trafic.add_trace(go.Scatter(
+                x=bornes_tmja_par_annee['annee'],
+                y=bornes_tmja_par_annee['tmja_moyen'],
+                mode='lines+markers',
+                line=dict(color='blue', dash='solid'),
+                marker=dict(symbol='circle', size=8),
+                name='TMJA'
+            ))
+
+            fig_trafic.update_layout(
+                title="TMJA par année",
+                xaxis_title="Année",
+                yaxis_title="TMJA",
+                template="plotly_white",
+                showlegend=True,
+                title_font=dict(size=16),
+                xaxis=dict(title_font=dict(size=12)),
+                yaxis=dict(title_font=dict(size=12)),
+            )
+
+            fig_trafic.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(128, 128, 128, 0.3)')
+            fig_trafic.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(128, 128, 128, 0.3)')
+
+            st.plotly_chart(fig_trafic)
