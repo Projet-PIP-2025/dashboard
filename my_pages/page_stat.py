@@ -22,34 +22,34 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         sorted(nb_voitures['annee'].unique())
 
     st.title("Statistiques descriptives")
-    # st.write("Bienvenue sur la page des statistiques descriptives.")
+    st.write("Bienvenue sur la page des statistiques descriptives.")
 
-    # ---- Filtres dans la barre latérale ----
-    st.sidebar.header("Filtres")
+    col1, col2, col3, col4 = st.columns(4)
 
-    # Filtre par année
-    years = ["Toutes les années"] + \
-        sorted(nb_voitures['annee'].unique())
-    selected_year = st.sidebar.selectbox("Choisissez une année", options=years)
+    with col4:
+        # Filtre par année
+        years = ["Toutes les années"] + \
+            sorted(nb_voitures['annee'].unique())
+        selected_year = st.selectbox("Choisissez une année", options=years)
 
-    # Niveau de granularité
-    granularite = st.sidebar.selectbox("Choisissez le niveau de granularité", options=["Aucun", "Région", "Département", "Commune"])
+        # Niveau de granularité
+        granularite = st.selectbox("Choisissez le niveau de granularité", options=["Aucun", "Région", "Département", "Commune"])
 
-    # Options dynamiques en fonction du niveau choisi
-    if granularite == "Région":
-        options = ["Toutes les régions"] + \
-            sorted(nb_voitures['nom_region'].unique())
-        selected_option = st.sidebar.selectbox("Sélectionnez une région", options=options)
-    elif granularite == "Département":
-        options = ["Tous les départements"] + \
-            sorted(nb_voitures['nom_departement'].unique())
-        selected_option = st.sidebar.selectbox("Sélectionnez un département", options=options)
-    elif granularite == "Commune":
-        options = ["Toutes les communes"] + \
-            sorted(nb_voitures['libgeo'].unique())
-        selected_option = st.sidebar.selectbox("Sélectionnez une commune", options=options)
-    else:
-        selected_option = "Aucun"
+        # Options dynamiques en fonction du niveau choisi
+        if granularite == "Région":
+            options = ["Toutes les régions"] + \
+                sorted(nb_voitures['nom_region'].unique())
+            selected_option = st.selectbox("Sélectionnez une région", options=options)
+        elif granularite == "Département":
+            options = ["Tous les départements"] + \
+                sorted(nb_voitures['nom_departement'].unique())
+            selected_option = st.selectbox("Sélectionnez un département", options=options)
+        elif granularite == "Commune":
+            options = ["Toutes les communes"] + \
+                sorted(nb_voitures['libgeo'].unique())
+            selected_option = st.selectbox("Sélectionnez une commune", options=options)
+        else:
+            selected_option = "Aucun"
 
     # ---- Filtrage des données ----
     filtered_data = nb_voitures.copy()
@@ -143,13 +143,29 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # Calcul des valeurs globales
     voitures = filtered_data.groupby('annee')['nb_vp_rechargeables_el'].sum().reset_index()
     total_vehicles = voitures['nb_vp_rechargeables_el'].max()  # Nombre total de véhicules électriques
-    bornes_annee = bornes.groupby('Annee')['nb_borne_cumul'].sum().reset_index()
-    total_bornes = bornes_annee['nb_borne_cumul'].max()  # Nombre total de bornes (valeur cumulée maximale)
+    bornes_annee = bornes.groupby(["Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
+
+    if selected_year == "Toutes les années":
+        if granularite == "Aucun":
+            total_bornes = bornes_annee['nb_borne_cumul'].max()
+        elif granularite == "Région":
+            total_bornes = bornes_annee[bornes_annee["nom_region"] == selected_option]['nb_borne_cumul'].max()
+        elif granularite == "Département":
+            total_bornes = bornes_annee[bornes_annee["nom_departement"] == selected_option]['nb_borne_cumul'].max()
+    else:
+        if granularite == "Aucun":
+            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
+        elif granularite == "Région":
+            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
+            total_bornes = total_bornes[total_bornes["nom_region"] == selected_option]['nb_borne_cumul'].max()
+        elif granularite == "Département":
+            total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
+            total_bornes = total_bornes[total_bornes["nom_departement"] == selected_option]['nb_borne_cumul'].max()
+
+
     ratio_vehicles_per_borne = total_vehicles / total_bornes  # Ratio véhicules par borne
 
     # Affichage en trois colonnes
-    col1, col2, col3 = st.columns(3)
-
     col1.markdown(f"<h5 style='font-weight: bold;'>Véhicules électriques</h5>"
                 f"<p style='font-size: 30px;'>{total_vehicles:,}".replace(",", " ") + "</p>"
                 f"<p style='font-size: 12px; color: blue;'>{title_suffix}</p>", unsafe_allow_html=True)
@@ -161,6 +177,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     col3.markdown(f"<h5 style='font-weight: bold;'>Véhicules par borne</h5>"
                 f"<p style='font-size: 30px;'>{ratio_vehicles_per_borne:.2f}</p>"
                 f"<p style='font-size: 12px; color: blue;'>{title_suffix}</p>", unsafe_allow_html=True)
+
+    st.write(bornes_annee.columns.tolist())
 
 
     # ---- Onglets pour navigation ----
@@ -174,7 +192,28 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     with tab1:
         st.subheader(f"Analyse du nombre de véhicules électriques{title_suffix}")
         agg_vehicules = filtered_data.groupby('annee')['nb_vp_rechargeables_el'].sum().reset_index()
-        with st.container():
+
+        header = st.container()
+        header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+
+        st.markdown(
+                """
+            <style>
+                div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
+                    position: sticky;
+                    top: 2.875rem;
+                    background-color: white;
+                    z-index: 999;
+                }
+                .fixed-header {
+                    border-bottom: 1px solid black;
+                }
+            </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with header:
             # Utiliser des colonnes pour aligner les filtres
             col1, col2, col3 = st.columns([1, 1, 2])  # Largeurs ajustables
 
@@ -298,7 +337,27 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         st.subheader(f"Analyse du nombre de bornes de recharge{title_suffix}")
         agg_bornes = bornes.copy()
 
-        with st.container():
+        header = st.container()
+        header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+
+        st.markdown(
+                """
+            <style>
+                div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
+                    position: sticky;
+                    top: 2.875rem;
+                    background-color: white;
+                    z-index: 999;
+                }
+                .fixed-header {
+                    border-bottom: 1px solid black;
+                }
+            </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with header:
             # Utiliser des colonnes pour aligner les filtres
             col1, col2, col3 = st.columns([1, 1, 2])  # Largeurs ajustables
 
@@ -497,7 +556,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             header = st.container()
             header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
 
-            ### Custom CSS for the sticky header
+            # Custom CSS for the sticky header
             st.markdown(
                 """
             <style>
