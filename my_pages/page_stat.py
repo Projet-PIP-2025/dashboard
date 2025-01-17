@@ -19,8 +19,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         bornes (pd.DataFrame): Données des bornes de recharge par commune, département et région.
     """
 
-    years = ["Toutes les années"] + \
-        sorted(nb_voitures['annee'].unique())
+    # years = ["Toutes les années"] + \
+    #     sorted(nb_voitures['annee'].unique())
 
     st.title("Statistiques descriptives")
     st.write("Bienvenue sur la page des statistiques descriptives.")
@@ -60,8 +60,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # Appliquer le filtre par année
     if selected_year != "Toutes les années":
         filtered_data = filtered_data[filtered_data['annee'] == selected_year] # Données filtrées pour véhicules
-        filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year]
-        st.write(filtered_data_bornes)
+        filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year] # Pour aménageurs et opérateurs
 
     # Appliquer le filtre par région, département ou commune
     if granularite == "Région" and selected_option != "Toutes les régions":
@@ -92,7 +91,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # Calcul des valeurs globales
     voitures = filtered_data.groupby('annee', as_index=False)['nb_vp_rechargeables_el'].sum()
     total_vehicles = voitures['nb_vp_rechargeables_el'].max()  # Nombre total de véhicules électriques
-    bornes_annee = filtered_data_bornes_annee.groupby(["Annee", "nom_region", "nom_departement", "commune"], as_index=False).agg({'nb_borne_cumul': 'sum'})
+    # bornes_annee = filtered_data_bornes_annee.groupby(["Annee", "nom_region", "nom_departement", "commune"], as_index=False).agg({'nb_borne_cumul': 'sum'})
 
     # commune
     group_col = {"Région": ["nom_region", "Toutes les régions"],
@@ -101,20 +100,20 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
 
     if selected_year == "Toutes les années":
         if group_col and selected_option != group_col[1]:
-            total_bornes = bornes_annee.groupby(group_col[0], as_index=False).agg({'nb_borne_cumul': 'sum'})
+            total_bornes = filtered_data_bornes_annee.groupby(group_col[0], as_index=False).agg({'nb_borne_cumul': 'sum'})
             total_bornes[group_col[0]] = total_bornes[group_col[0]].str.lower()
             total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option.lower(), 'nb_borne_cumul'].max()
         else:
-            total_bornes = bornes_annee.groupby("Annee", as_index=False).agg({'nb_borne_cumul': 'sum'})
+            total_bornes = filtered_data_bornes_annee.groupby("Annee", as_index=False).agg({'nb_borne_cumul': 'sum'})
             total_bornes = total_bornes['nb_borne_cumul'].max()
     else:
         if group_col and selected_option != group_col[1]:
-            total_bornes = bornes_annee.groupby(["Annee", group_col[0]], as_index=False).agg({'nb_borne_cumul': 'sum'})
+            total_bornes = filtered_data_bornes_annee.groupby(["Annee", group_col[0]], as_index=False).agg({'nb_borne_cumul': 'sum'})
             total_bornes = total_bornes[total_bornes["Annee"] == selected_year][[group_col[0], 'nb_borne_cumul']]
             total_bornes[group_col[0]] = total_bornes[group_col[0]].str.lower()
             total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option.lower(), 'nb_borne_cumul'].max()
         else:
-            total_bornes = bornes_annee.groupby(["Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
+            total_bornes = filtered_data_bornes_annee.groupby(["Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
             total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
 
     # Ratio véhicules par borne
