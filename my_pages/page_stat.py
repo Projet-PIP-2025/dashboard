@@ -487,7 +487,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["nom_departement"] == selected_option]
         elif granularite == "Commune" and selected_option != "Toutes les communes":
             filtered_data_bornes = filtered_data_bornes[filtered_data_bornes["commune"] == selected_option]
-
+            
         # ---- 2. Top 10 des Aménageurs et Opérateurs par nombre de bornes ----
         top_amenageurs = (
             filtered_data_bornes.groupby('nom_amenageur')['nb_borne']
@@ -528,7 +528,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
                 x='nb_borne',
                 y='nom_operateur',
                 orientation='h',
-                title="Top 10 Opérateurs",
+                title=f"Top 10 Opérateurs{title_suffix}",
                 labels={'nb_borne': 'Nombre de bornes', 'nom_operateur': 'Opérateur'},
                 text='nb_borne'
             )
@@ -633,6 +633,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             title_suffix = ""
             if selected_option not in ["Aucun", "Toutes les régions", "Tous les départements", "Toutes les communes"]:
                 title_suffix = f" - {selected_option}"
+            if selected_option == "Aucun":
+                title_suffix = f" - France"
             if selected_year != "Toutes les années":
                 title_suffix += f" (Année : {selected_year})"
 

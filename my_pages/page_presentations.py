@@ -54,7 +54,7 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
 
 def create_map_borne(nb_voiture_commune_dep, geojson_data,col_granu):
     # Initialisation de la carte centrée sur la France
-    print(nb_voiture_commune_dep.columns)
+    # print(nb_voiture_commune_dep.columns)
     map = folium.Map(location=[46.603354, 1.8883344], zoom_start=6, tiles='CartoDB positron')
 
 
@@ -66,8 +66,8 @@ def create_map_borne(nb_voiture_commune_dep, geojson_data,col_granu):
     # Mets les keys au format list str
     vehicle_dict = {str(k): v for k, v in vehicle_dict.items()}
     # comment faire un tolist sur un dict.keys() ?
-    print(list(vehicle_dict.keys()))
-    print([feature['properties']['code'] for feature in geojson_data['features']])
+    # print(list(vehicle_dict.keys()))
+    # print([feature['properties']['code'] for feature in geojson_data['features']])
     # Ajout des données au GeoJSON
     for feature in geojson_data['features']:
         feature_code = feature['properties']['code']
