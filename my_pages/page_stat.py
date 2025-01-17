@@ -61,6 +61,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     if selected_year != "Toutes les années":
         filtered_data = filtered_data[filtered_data['annee'] == selected_year] # Données filtrées pour véhicules
         filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year]
+        st.write(filtered_data_bornes)
 
     # Appliquer le filtre par région, département ou commune
     if granularite == "Région" and selected_option != "Toutes les régions":
@@ -445,6 +446,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             y='Nom',
             title=f"Top 10 des {'ville' if granularite == 'Aucun' else granularite.lower()}s avec le plus de bornes de recharge",
             labels={'Nom': f"{'ville' if granularite == 'Aucun' else granularite.lower()}", 'nb_borne': 'Nombre de bornes de recharge'},
+            text='nb_borne',
         )
         fig_top_bornes.update_traces(textposition='outside')
         fig_top_bornes.update_layout(xaxis_tickangle=-45)
@@ -456,8 +458,11 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         st.write("")
 
         # ---- 1. Évolution du nombre d'Aménageurs et d'Opérateurs ----
+        # Filtrer les données pour inclure uniquement les entrées avec nb_borne_cumul > 0
+        filtered_data_bornes_non_zero = filtered_data_bornes[filtered_data_bornes['nb_borne_cumul'] > 0]
+
         evolution_am_op = (
-            filtered_data_bornes.groupby(['Annee'])
+            filtered_data_bornes_non_zero.groupby(['Annee'])
             .agg(
                 nb_amenageurs=('nom_amenageur', 'nunique'),
                 nb_operateurs=('nom_operateur', 'nunique')
@@ -469,7 +474,7 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             evolution_am_op,
             x='Annee',
             y=['nb_amenageurs', 'nb_operateurs'],
-            title="Évolution du nombre d'Aménageurs et d'Opérateurs",
+            title=f"Évolution du nombre d'Aménageurs et d'Opérateurs{title_suffix}",
             labels={'value': 'Nombre', 'variable': 'Catégorie'},
             markers=True
         )
@@ -478,33 +483,33 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
 
         # ---- 2. Top 10 des Aménageurs et Opérateurs par nombre de bornes ----
         top_amenageurs = (
-            filtered_data_bornes.groupby('nom_amenageur')['nb_borne_cumul']
+            filtered_data_bornes.groupby('nom_amenageur')['nb_borne']
             .sum()
             .reset_index()
-            .sort_values(by='nb_borne_cumul', ascending=False)
+            .sort_values(by='nb_borne', ascending=False)
             .head(10)
         )
 
         top_operateurs = (
-            filtered_data_bornes.groupby('nom_operateur')['nb_borne_cumul']
+            filtered_data_bornes.groupby('nom_operateur')['nb_borne']
             .sum()
             .reset_index()
-            .sort_values(by='nb_borne_cumul', ascending=False)
+            .sort_values(by='nb_borne', ascending=False)
             .head(10)
         )
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.subheader("Top 10 Aménageurs par nombre de bornes")
+            st.subheader("Top 10 Aménageurs des bornes électriques")
             fig4 = px.bar(
                 top_amenageurs,
-                x='nb_borne_cumul',
+                x='nb_borne',
                 y='nom_amenageur',
                 orientation='h',
-                title="Top 10 Aménageurs",
-                labels={'nb_borne_cumul': 'Nombre de bornes', 'nom_amenageur': 'Aménageur'},
-                # text='nb_borne_cumul'
+                title=f"Top 10 Aménageurs{title_suffix}",
+                labels={'nb_borne': 'Nombre de bornes', 'nom_amenageur': 'Aménageur'},
+                text='nb_borne'
             )
             fig4.update_traces(textposition='outside')
             st.plotly_chart(fig4)
@@ -513,12 +518,12 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             st.subheader("Top 10 Opérateurs par nombre de bornes")
             fig5 = px.bar(
                 top_operateurs,
-                x='nb_borne_cumul',
+                x='nb_borne',
                 y='nom_operateur',
                 orientation='h',
-                title="Top 10 Opérateurs",
-                labels={'nb_borne_cumul': 'Nombre de bornes', 'nom_operateur': 'Opérateur'},
-                text='nb_borne_cumul'
+                title=f"Top 10 Opérateurs{title_suffix}",
+                labels={'nb_borne': 'Nombre de bornes', 'nom_operateur': 'Opérateur'},
+                text='nb_borne'
             )
             fig5.update_traces(textposition='outside')
             st.plotly_chart(fig5)
@@ -635,6 +640,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
             title_suffix = ""
             if selected_option not in ["Aucun", "Toutes les régions", "Tous les départements", "Toutes les communes"]:
                 title_suffix = f" - {selected_option}"
+            if selected_option == "Aucun":
+                title_suffix = f" - France"
             if selected_year != "Toutes les années":
                 title_suffix += f" (Année : {selected_year})"
 
