@@ -156,7 +156,7 @@ def create_map_population(dataset, geojson_data, col_granu, col_year, info_carte
 
     return map
 
-def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
+def show(carte_html2, trafic_reg, trafic_dep, population, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,
                                 geojson_data_com, geojson_data_dep, geojson_data_reg, carte_tmja_reg, carte_tmja_dep):
     st.title("Page 1 : Présentation des données")
     st.write("Bienvenue sur la page de présentation des données.")
@@ -166,6 +166,7 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
         "Population",
         "Trafic"
     ])
+
     with tab1:
         with st.container():
             # Utiliser des colonnes pour aligner les filtres
@@ -197,6 +198,7 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
                     options=["nombre de véhicule", "ratio de véhicule électrique par rapport au total"],
                     key="slider_info_carte_vehicule"
                 )
+
         if granularity == "commune":
             col_granu = "codgeo"
             geojson_data = geojson_data_com
@@ -220,7 +222,6 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
 
-
         else:
             col_granu = "code_dep"
             geojson_data = geojson_data_dep
@@ -231,6 +232,7 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
             # Fait ca en pourcentage nb_voiture_commune_dep["ratio_elec_total"] avec 2 chiffres après la virgule
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
             dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
+
         map = create_map(dataset, geojson_data, col_granu, info_carte)
         folium_static(map, width=800, height=600)
 
@@ -240,6 +242,7 @@ def show(carte_html2, trafic_reg,trafic_dep, population, bornes, nb_voiture_comm
         bornes_reg = bornes[["Annee","code_region","nom_region","nb_borne_cumul"]]
         bornes_dep = bornes_dep.groupby(["Departement_selon_insee","nom_departement","Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
         bornes_reg = bornes_reg.groupby(["code_region","nom_region","Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
+
         with st.container():
             # Utiliser des colonnes pour aligner les filtres
             col_borne1, col_borne2 = st.columns([1, 1])
