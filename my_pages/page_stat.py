@@ -6,6 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import geopandas as gpd
 import branca.colormap as cm
+import math
 
 
 def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, carte_vehicules_bornes_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee):
@@ -100,31 +101,23 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     if selected_year == "Toutes les années":
         if group_col and selected_option != group_col[1]:
             total_bornes = bornes_annee.groupby(group_col[0], as_index=False).agg({'nb_borne_cumul': 'sum'})
-            total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option, 'nb_borne_cumul'].max()
+            total_bornes[group_col[0]] = total_bornes[group_col[0]].str.lower()
+            total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option.lower(), 'nb_borne_cumul'].max()
         else:
             total_bornes = bornes_annee.groupby("Annee", as_index=False).agg({'nb_borne_cumul': 'sum'})
             total_bornes = total_bornes['nb_borne_cumul'].max()
     else:
         if group_col and selected_option != group_col[1]:
-
             total_bornes = bornes_annee.groupby(["Annee", group_col[0]], as_index=False).agg({'nb_borne_cumul': 'sum'})
-
-            st.write(total_bornes)
-
             total_bornes = total_bornes[total_bornes["Annee"] == selected_year][[group_col[0], 'nb_borne_cumul']]
-
-            st.write(total_bornes)
-            total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option, 'nb_borne_cumul'].max()
-
-            st.write(total_bornes)
+            total_bornes[group_col[0]] = total_bornes[group_col[0]].str.lower()
+            total_bornes = total_bornes.loc[total_bornes[group_col[0]] == selected_option.lower(), 'nb_borne_cumul'].max()
         else:
             total_bornes = bornes_annee.groupby(["Annee"]).agg({'nb_borne_cumul': 'sum'}).reset_index()
             total_bornes = bornes_annee[bornes_annee["Annee"] == selected_year]['nb_borne_cumul'].max()
 
     # Ratio véhicules par borne
-    import math
-
-    if not isinstance(total_bornes, (float, int)) or math.isnan(total_bornes):
+    if not isinstance(total_bornes, (float, int)) or math.isnan(total_bornes) or total_bornes == 0:
         total_bornes = 0
         ratio_vehicles_per_borne = 0
     else:
@@ -221,26 +214,30 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         else:
             derniere_annee = top_data['annee'].max()
 
-        # Filtrer les données pour ne conserver que celles de la dernière année
-        top_data = top_data[top_data['annee'] == derniere_annee]
-
         # Appliquer le filtre par région, département ou commune
         if granularite == "Région" and selected_option != "Toutes les régions":
             filtered_data = filtered_data[filtered_data['nom_region']
                                         == selected_option]
-            top_data = top_data.groupby('nom_region', as_index=False)['nb_vp_rechargeables_el'].sum()
-            top_data["Nom"] = top_data["nom_region"]
         elif granularite == "Département" and selected_option != "Tous les départements":
             filtered_data = filtered_data[filtered_data['nom_departement']
                                         == selected_option]
-            top_data = top_data.groupby('nom_departement', as_index=False)['nb_vp_rechargeables_el'].sum()
-            top_data["Nom"] = top_data["nom_departement"]
         elif granularite == "Commune" and selected_option != "Toutes les communes":
             filtered_data = filtered_data[filtered_data['libgeo']
                                         == selected_option]
+
+        # Filtrer les données pour ne conserver que celles de la dernière année
+        top_data = top_data[top_data['annee'] == derniere_annee]
+
+        # Appliquer le filtre par région, département ou commune
+        if granularite == "Région":
+            top_data = top_data.groupby('nom_region', as_index=False)['nb_vp_rechargeables_el'].sum()
+            top_data["Nom"] = top_data["nom_region"]
+        elif granularite == "Département":
+            top_data = top_data.groupby('nom_departement', as_index=False)['nb_vp_rechargeables_el'].sum()
+            top_data["Nom"] = top_data["nom_departement"]
+        elif granularite == "Commune":
             top_data = top_data.groupby('libgeo', as_index=False)['nb_vp_rechargeables_el'].sum()
             top_data["Nom"] = top_data["libgeo"]
-
         else:
             top_data = top_data.groupby('libgeo', as_index=False)['nb_vp_rechargeables_el'].sum()
             top_data["Nom"] = top_data["libgeo"]
