@@ -42,8 +42,7 @@ def load_data():
     # bornes_sans_date =
     with open("data/carte_interactive_avec_bornes.html", "r", encoding="utf-8") as file:
         carte_html = file.read()
-    with open("data/Carte_html/carte_commune_2023.html", "r", encoding="utf-8") as file:
-        carte_html_commune = file.read()
+
     with open("data/carte_tmja_troncons.html", "r", encoding="utf-8") as file:
         carte_html2 = file.read()
 
@@ -74,14 +73,14 @@ def load_data():
     html_files = [f for f in os.listdir("data/Carte_html/") if f.endswith(".html")]
     for html_file in html_files:
         file_path = os.path.join("data/Carte_html/", html_file)
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             carte_html[html_file] = file.read()
 
     carte_borne_pred = {}
     html_files = [f for f in os.listdir("data/Carte_borne_pred/") if f.endswith(".html")]
     for html_file in html_files:
         file_path = os.path.join("data/Carte_borne_pred/", html_file)
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             carte_borne_pred[html_file] = file.read()
 
 
@@ -89,11 +88,25 @@ def load_data():
     html_files = [f for f in os.listdir("data/cartes_bornes_axes/") if f.endswith(".html")]
     for html_file in html_files:
         file_path = os.path.join("data/cartes_bornes_axes/", html_file)
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             carte_bornes_axes[html_file] = file.read()
-    return carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep, bornes_tmja_par_annee
 
-carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes, carte_html_commune,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee = load_data()
+    dico_graphes = {}
+    html_files = [f for f in os.listdir("data/Graph prédiction/") if f.endswith(".html")]
+    for html_file in html_files:
+        file_path = os.path.join("data/Graph prédiction/", html_file)
+        with open(file_path, "r", encoding="utf-8") as file:
+            dico_graphes[html_file] = file.read()
+    dico_graphes_reco = {}
+    html_files = [f for f in os.listdir("data/Graph reco/") if f.endswith(".html")]
+    for html_file in html_files:
+        file_path = os.path.join("data/Graph reco/", html_file)
+        with open(file_path, "r", encoding="utf-8") as file:
+            dico_graphes_reco[html_file] = file.read()
+
+    return dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep, bornes_tmja_par_annee
+
+dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee = load_data()
 
 
 def main():
@@ -120,7 +133,7 @@ def main():
     )
 
     if selected_page == "Accueil":
-        st.title("Bienvenue sur le Dashboard des Véhicules Électriques")
+        st.title("Tableau de Bord : Véhicules Électriques et Infrastructures de Recharge")
         st.markdown(
             """
             Ce dashboard présente des données sur les véhicules électriques en France.
@@ -159,10 +172,10 @@ def main():
         page_stat.show(nb_voitures, bornes_completes, bornes, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee)
 
     elif selected_page == "Prédictions":
-        page_predictions.show(bornes_pred, pred_reg, pred_ve)
+        page_predictions.show(bornes_pred, pred_reg, pred_ve,dico_graphes)
 
     elif selected_page == "Recommandations":
-        page_recommandations.show(carte_borne_pred,carte_bornes_axes)
+        page_recommandations.show(carte_borne_pred,carte_bornes_axes,dico_graphes_reco)
 
 
 if __name__ == "__main__":
