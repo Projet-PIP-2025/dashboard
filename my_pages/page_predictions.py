@@ -106,11 +106,18 @@ def show(bornes_pred,pred_reg, pred_ve, dico_graphes):
     # st.title("Page 3 : Page de prédiction")
     create_pred(bornes_pred)
     # Ensuite on affiche le graphique de prédiction globale sur les véhicules (Raissa)
-    region = st.selectbox(
-    "Selection :",
-    options=pred_reg['Nom_Région'].unique().tolist() + ['Total']
-    )
+    st.markdown("---")
+    col1, col2 = st.columns([1, 1])
+    # Liste des trimestres (les clés du dictionnaire)
+    with col2:
+        region = st.selectbox(
+        "Selection Région :",
+        options=['Total','Île-de-France','Centre-Val de Loire','Bourgogne-Franche-Comté','Normandie',
+ 'Hauts-de-France','Grand Est','Pays de la Loire','Bretagne','Nouvelle-Aquitaine','Occitanie',
+ 'Auvergne-Rhône-Alpes',"Provence-Alpes-Côte d'Azur",'Corse']
+        )
     code = f"forecast_{region}.html"
-    st.title("Carte Interactive")
+    with col1:
+        st.title("Prédiction du nombre de véhicules électriques")
     graphe_html_choisi = dico_graphes[code]
     st.components.v1.html(graphe_html_choisi, height=1050, width=1350)

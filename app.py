@@ -38,6 +38,7 @@ def load_data():
     trafic_reg = pd.read_csv("data/tmja_reg.csv", encoding="utf-8")
     reco_borne_ve = pd.read_csv("data/tab_reco_borne_pour_ve.csv" , delimiter = ";", encoding="utf-8")
     bornes_tmja_par_annee = pd.read_csv("data/bornes_tmja_ratio_annee.csv", encoding="utf-8")
+    
 
     # bornes_sans_date =
     with open("data/carte_interactive_avec_bornes.html", "r", encoding="utf-8") as file:
@@ -133,36 +134,33 @@ def main():
     )
 
     if selected_page == "Accueil":
-        st.title("Tableau de Bord : Véhicules Électriques et Infrastructures de Recharge")
-        st.markdown(
-            """
-            Ce dashboard présente des données sur les véhicules électriques en France.
-            Vous pouvez explorer les données par région, département et commune.
-            """
-        )
-        st.subheader("Navigation")
-        st.markdown(
-            """
-            Utilisez le menu en haut de la page pour naviguer entre les différentes sections :
-            * **Carte:** Visualisez les données sur une carte interactive.
-            * **Statistiques:** Explorez les données à travers des graphiques.
-            * **Prédictions:** Faire des prédictions sur les données.
-            * **Recommandations:** Faire des recommandations à partir des prédictions éffectuées.
-            """
-        )
-        st.subheader("Réalisé par :")
-        st.markdown(
-            """
-            * **Thomas**
-            * **Koudous**
-            * **Raïssa**
-            * **Xavier**
-            * **Antoine**
-            * **Noé**
-            * **Paul**
-            * **Charly**
-            """
-        )
+        # Créer deux colonnes
+        col1, col2 = st.columns(2)
+        # Ajouter du contenu dans la première colonne
+        with col1:
+            st.title("Tableau de Bord : Véhicules Électriques et Infrastructures de Recharge")
+            st.markdown(
+                """
+                Ce dashboard est réalisé dans le cadre du challenge Véhicules Electriques de la saison 3 de l'Open Data University.
+                Il permet d'explorer les données de mobilité électrique (véhicules électriques, bornes de recharge, trafic moyen journalier annuel,...) par région, département et commune. Il permet également de voir les recommandations d'installations de bornes électriques que nous avions proposé suite à différentes études.
+                """
+            )
+            st.subheader("Navigation")
+            st.markdown(
+                """
+                Utilisez le menu en haut de la page pour naviguer entre les différentes sections :
+                * **Carte:** Visualisez les données sur une carte interactive.
+                * **Statistiques:** Explorez les données à travers des graphiques.
+                * **Prédictions:** Faire des prédictions sur les données.
+                * **Recommandations:** Faire des recommandations à partir des prédictions éffectuées.
+                """
+            )
+            st.write("Réalisé par les étudiants du master Sciences et Ingénierie de l'Université de Toulouse : **Thomas**, **Koudous**, **Raïssa**, **Xavier**, **Antoine**, **Noé**, **Paul** et **Charly**")
+           
+
+        # Ajouter une image dans la deuxième colonne
+        with col2:
+            st.image("data/voiture2.jpg", use_container_width=True) 
         
     elif selected_page == "Carte":
         page_presentations.show(carte_html2,carte_html,trafic_reg,trafic_dep, population2,bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg,

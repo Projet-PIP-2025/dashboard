@@ -23,7 +23,6 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
         sorted(nb_voitures['annee'].unique())
 
     st.title("Statistiques descriptives")
-    st.write("Bienvenue sur la page des statistiques descriptives.")
 
     col1, col2, col3, col4 = st.columns(4)
 

@@ -13,8 +13,10 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
     if info_carte == "nombre de véhicule":
         # Conversion des données en dictionnaire pour relier avec le GeoJSON
         col = 'nb_vp_rechargeables_el'
+        lib = "Nombre de véhicules électriques"
     elif info_carte == "ratio de véhicule électrique par rapport au total":
         # Conversion des données en dictionnaire pour relier avec le GeoJSON
+        lib = "Ratio de véhicules électriques par rapport au total"
         col = 'ratio_elec_total'
 
     vehicle_dict = nb_voiture_commune_dep.set_index(col_granu)[col].to_dict()
@@ -28,14 +30,14 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
     # Ajout d'un choropleth pour afficher les données
     folium.Choropleth(
         geo_data=geojson_data,
-        name="Véhicules électriques par département",
+        name=lib,
         data=nb_voiture_commune_dep,
         columns=[col_granu, col],
         key_on='feature.properties.code',
         fill_color='YlGnBu',
         fill_opacity=0.7,
         line_opacity=0.05,
-        legend_name="Nombre de véhicules électriques"
+        legend_name=lib
     ).add_to(map)
     # Ajout de tooltips interactifs
     folium.GeoJson(
@@ -43,7 +45,7 @@ def create_map(nb_voiture_commune_dep, geojson_data,col_granu, info_carte):
         name="Détails",
         tooltip=folium.GeoJsonTooltip(
             fields=['code', 'nom', 'vehicles'],
-            aliases=['Code :', 'Nom:', 'Véhicules électriques:']
+            aliases=['Code :', 'Nom:', lib]
         )
     ).add_to(map)
 
@@ -71,7 +73,7 @@ def create_map_borne(nb_voiture_commune_dep, geojson_data,col_granu):
     # Ajout des données au GeoJSON
     for feature in geojson_data['features']:
         feature_code = feature['properties']['code']
-        feature['properties']['vehicles'] = vehicle_dict.get(feature_code, 'N/A')
+        feature['properties']['vehicles'] = vehicle_dict.get(feature_code, 0)
 
     # Ajout d'un choropleth pour afficher les données
     folium.Choropleth(
@@ -91,7 +93,7 @@ def create_map_borne(nb_voiture_commune_dep, geojson_data,col_granu):
         name="Détails",
         tooltip=folium.GeoJsonTooltip(
             fields=['code', 'nom', 'vehicles'],
-            aliases=['Code :', 'Nom:', 'Véhicules électriques:']
+            aliases=['Code :', 'Nom:', 'Bornes:']
         )
     ).add_to(map)
 
@@ -208,7 +210,7 @@ def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voi
                 code = f"carte_commune_{selected_year}_{departement_code}.html"
                 carte_html_choisi = carte_html[code]
                 with col_carte:
-                    st.title("Carte Interactive")
+                    st.subheader("Carte des véhicules électriques")
                     st.components.v1.html(carte_html_choisi, height=500, width=800)
 
             elif granularity == "Région":
@@ -227,6 +229,7 @@ def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voi
                 dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
                 dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
                 with col_carte:
+                    st.subheader("Carte des véhicules électriques")
                     map = create_map(dataset, geojson_data, col_granu, info_carte)        
                     folium_static(map, width=800, height=600)
 
@@ -246,6 +249,7 @@ def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voi
                 dataset["ratio_elec_total"] = dataset["ratio_elec_total"] * 100
                 dataset["ratio_elec_total"] = dataset["ratio_elec_total"].round(2)
                 with col_carte:
+                    st.subheader("Carte des véhicules électriques")
                     map = create_map(dataset, geojson_data, col_granu, info_carte)        
                     folium_static(map, width=800, height=600)
     with tab2:
@@ -282,6 +286,7 @@ def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voi
                 geojson_data = geojson_data_dep
                 dataset = bornes_dep
         with col_carte1:
+            st.subheader("Carte des bornes de recharge")
             dataset = dataset[dataset["Annee"] == selected_year2]
             dataset.drop(columns=["Annee"], inplace=True)
 
@@ -330,6 +335,7 @@ def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voi
                 geojson_data = geojson_data_dep
                 dataset = population_dep        
         with col_carte2:
+            st.subheader("Carte effecif de la population")
             map = create_map_population(dataset, geojson_data, col_granu, selected_year3, info_carte="Population")
             folium_static(map, width=800, height=600)        
         
@@ -346,11 +352,11 @@ def show(carte_html2,carte_html,trafic_reg,trafic_dep, population,bornes, nb_voi
             )
         with col_carte3:
             if granularity4 == "Région":
-                st.subheader("TMJA  moyen selon la région")
+                st.subheader("Trafic moyen journalier annuel (TMJA) selon la région")
                 st.components.v1.html(carte_tmja_reg, height=500, width=800)
             elif granularity4 == "Axes":
                 st.subheader("Carte trafic journalier par axe routier")
                 st.components.v1.html(carte_html2, height=500, width=800)
             elif granularity4 == "Département":
-                st.subheader("TMJA moyen selon la région")
+                st.subheader("Trafic moyen journalier annuel (TMJA) selon le département")
                 st.components.v1.html(carte_tmja_dep, height=500, width=800)
