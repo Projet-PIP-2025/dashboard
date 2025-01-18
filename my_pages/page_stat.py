@@ -48,12 +48,12 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
 
     # ---- Filtrage des données ----
     filtered_data = nb_voitures.copy()
-    filtered_data_bornes_annee = bornes.copy()
+    # filtered_data_bornes_annee = bornes.copy()
 
     # Appliquer le filtre par année
     if selected_year != "Toutes les années":
         filtered_data = filtered_data[filtered_data['annee'] == selected_year] # Données filtrées pour véhicules
-        filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year] # Pour aménageurs et opérateurs
+        # filtered_data_bornes = filtered_data_bornes[filtered_data_bornes['Annee'] == selected_year] # Pour aménageurs et opérateurs
 
     # Appliquer le filtre par région, département ou commune
     if granularite == "Région" and selected_option != "Toutes les régions":
@@ -75,7 +75,8 @@ def show(nb_voitures, bornes_completes, bornes, carte_vehicules_bornes_reg, cart
     # Calcul des valeurs globales
     voitures = filtered_data.groupby('annee', as_index=False)['nb_vp_rechargeables_el'].sum()
     total_vehicles = voitures['nb_vp_rechargeables_el'].max()
-    total_bornes = filtered_data_bornes_annee.copy()
+    total_bornes = bornes.copy()
+    # total_bornes = filtered_data_bornes_annee.copy()
     # commune
     group_col = {"Région": ["nom_region", "Toutes les régions"],
                 "Département": ["nom_departement", "Tous les départements"],
