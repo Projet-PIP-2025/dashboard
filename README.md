@@ -11,7 +11,7 @@ Ce projet permet d'analyser les données liées aux véhicules électriques et a
 
 - Visualisation interactive avec **Plotly**.
 - Analyse détaillée par région, département ou commune.
-<!-- - Statistiques sur les aménageurs et opérateurs. -->
+- Statistiques sur les aménageurs et opérateurs.
 
 ## Prérequis
 
@@ -34,3 +34,15 @@ Ce projet permet d'analyser les données liées aux véhicules électriques et a
 4. Lancez l'application :
    ```bash
    streamlit run app.py
+
+
+## Authors
+
+- CHAUFOUREAU Thomas
+- AGOSSOU Koudous
+- TCHIBOZO HOUESSOU Raïssa 
+- SAINT MARC Paul
+- BRISON Noé
+- CHEVALLIER Antoine
+- PUJOL Xavier
+- MARTY Charly
