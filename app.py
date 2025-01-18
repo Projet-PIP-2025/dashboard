@@ -25,10 +25,10 @@ def load_data():
     nb_voiture_commune = pd.read_csv("data/nb_voiture_commune.csv", encoding="utf-8")
     nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv", encoding="utf-8")
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv", encoding="utf-8")
-    
-    bornes = pd.read_csv("data/bornes_completes.csv", encoding="utf-8") # Données utilisées pour les statistiques
+    bornes_vehicules_dep = pd.read_csv("data/croisement_donnee_borne_voiture_departement.csv", encoding="utf-8")
+    bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
+    bornes = pd.read_csv("data/bornes_completes.csv", encoding="utf-8")
     bornes_completes = pd.read_csv("data/bornes_completes2.csv", encoding="utf-8") # Données utilisées pour Aménageurs & Opérateurs (statistiques)
-    
     bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";", encoding="utf-8")
     pred_reg = pd.read_csv("data/Pred_Reg_tout.csv" , delimiter = ";", encoding="utf-8")
     pred_ve = pd.read_csv("data/Pred_ve_tout.csv" , delimiter = ";", encoding="utf-8")
@@ -104,16 +104,18 @@ def load_data():
         with open(file_path, "r", encoding="utf-8") as file:
             dico_graphes_reco[html_file] = file.read()
 
-    return dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep, bornes_tmja_par_annee
+    return dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes,carte_html2,carte_html,carte_vehicule_borne_reg,carte_vehicule_borne_dep,carte_tmja_reg,carte_tmja_dep,carte_bornes_tmja_reg,carte_bornes_tmja_dep, bornes_tmja_par_annee
 
-dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee = load_data()
+dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html, reco_borne_ve,pred_ve, pred_reg, bornes_pred, bornes_vehicules_dep, bornes_vehicules_reg, trafic_reg, trafic_dep, population2, bornes, nb_voiture_commune, nb_voiture_dep, nb_voiture_reg, geojson_data_com, geojson_data_dep, geojson_data_reg, nb_voitures, bornes_completes,carte_html2,carte_html, carte_vehicule_borne_reg, carte_vehicule_borne_dep, carte_tmja_reg, carte_tmja_dep, carte_bornes_tmja_reg, carte_bornes_tmja_dep, bornes_tmja_par_annee = load_data()
 
 
 def main():
     selected_page = option_menu(
         menu_title=None,  # No title
-        options=["Accueil", "Carte", "Statistiques", "Prédictions", "Recommandations"],  # Options
-        icons=["house", "map", "bar-chart-line", "graph-up", "lightbulb"],  # Icons
+        options=["Accueil", "Carte", "Statistiques",
+                 "Prédictions", "Recommandations"],  # Options
+        icons=["house", "map", "bar-chart-line",
+               "graph-up", "lightbulb"],  # Icons
         menu_icon="cast",  # Menu Icon
         default_index=0,  # Default
         orientation="horizontal",
