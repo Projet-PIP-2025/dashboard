@@ -1,9 +1,5 @@
 import streamlit as st
-import numpy as np
-import darts
 import pandas as pd
-from darts import TimeSeries
-from darts.models import ExponentialSmoothing
 import matplotlib.pyplot as plt
 
 
