@@ -9,3 +9,4 @@ folium>=0.14.0
 numpy>=1.25.0
 streamlit-option-menu>=0.3.0
 darts>=0.23.1
+streamlit-folium>=0.12.1
