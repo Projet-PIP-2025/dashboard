@@ -25,11 +25,10 @@ def load_data():
     nb_voiture_commune = pd.read_csv("data/nb_voiture_commune.csv", encoding="utf-8")
     nb_voiture_dep = pd.read_csv("data/nb_voiture_dep.csv", encoding="utf-8")
     nb_voiture_reg = pd.read_csv("data/nb_voiture_reg.csv", encoding="utf-8")
-    bornes_vehicules_dep = pd.read_csv("data/croisement_donnee_borne_voiture_departement.csv", encoding="utf-8")
-    bornes_vehicules_reg = pd.read_csv("data/croisement_donnee_borne_voiture_region.csv", encoding="utf-8")
-    bornes = pd.read_csv("data/bornes_completes.csv", encoding="utf-8")
-    bornes2 = pd.read_csv("data/Bornes_nettoye2.csv" , delimiter = ";", encoding="utf-8")
+    
+    bornes = pd.read_csv("data/bornes_completes.csv", encoding="utf-8") # Données utilisées pour les statistiques
     bornes_completes = pd.read_csv("data/bornes_completes2.csv", encoding="utf-8") # Données utilisées pour Aménageurs & Opérateurs (statistiques)
+    
     bornes_pred = pd.read_csv("data/Pred_Borne_fr.csv" , delimiter = ";", encoding="utf-8")
     pred_reg = pd.read_csv("data/Pred_Reg_tout.csv" , delimiter = ";", encoding="utf-8")
     pred_ve = pd.read_csv("data/Pred_ve_tout.csv" , delimiter = ";", encoding="utf-8")
@@ -113,10 +112,8 @@ dico_graphes_reco, dico_graphes, carte_bornes_axes, carte_borne_pred, carte_html
 def main():
     selected_page = option_menu(
         menu_title=None,  # No title
-        options=["Accueil", "Carte", "Statistiques",
-                 "Prédictions", "Recommandations"],  # Options
-        icons=["house", "map", "bar-chart-line",
-               "graph-up", "lightbulb"],  # Icons
+        options=["Accueil", "Carte", "Statistiques", "Prédictions", "Recommandations"],  # Options
+        icons=["house", "map", "bar-chart-line", "graph-up", "lightbulb"],  # Icons
         menu_icon="cast",  # Menu Icon
         default_index=0,  # Default
         orientation="horizontal",
